@@ -185,6 +185,14 @@ export const REVENDEURS: Dealer[] = [
   },
 ];
 
+/**
+ * Motos du catalogue.
+ * Accueil — section « Nouveautés / Arrivages » : ajoutez `homeFavorite: true`
+ * sur une moto pour l'y afficher (et retirez-le pour l'en enlever).
+ * La carte de l'accueil reprend alors automatiquement brand, family, name,
+ * desc, image, alt, price et specs de la fiche ci-dessous : ne recopiez
+ * jamais ces informations ailleurs (ni dans content.ts, ni dans un composant).
+ */
 export const BIKES: Bike[] = [
   {
     id: "sherco-sef-250-factory-2026",
@@ -193,6 +201,7 @@ export const BIKES: Bike[] = [
     family: "Off-road",
     price: "Sur devis",
     tag: "Nouveauté 2026",
+    homeFavorite: true,
     alt: "Sherco 250 SEF Factory 2026 – vue latérale",
     image:
       "https://funbike.mg/wp-content/uploads/2026/02/01-250-SEF-FACTORY-2026-3679x2456-1-1920x1080-1.jpg",
@@ -323,6 +332,7 @@ export const BIKES: Bike[] = [
     brand: "TVS",
     family: "Urbain",
     price: "Sur devis",
+    homeFavorite: true,
     alt: "TVS 200 4V – bannière",
     image: "https://funbike.mg/wp-content/uploads/2026/02/Banner_200_4V.png",
     specs: [

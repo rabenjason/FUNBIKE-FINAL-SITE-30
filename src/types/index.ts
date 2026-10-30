@@ -39,6 +39,13 @@ export interface Bike {
   gallery?: string[];
   specs: BikeSpec[];
   desc: string;
+  /**
+   * Moto favorite de l'accueil : si `true`, la moto est affichée dans la
+   * section « Nouveautés / Arrivages » avec les informations de cette
+   * fiche (marque, famille, nom, description, image, caractéristiques).
+   * À gérer uniquement dans `BIKES` (src/data.ts).
+   */
+  homeFavorite?: boolean;
 }
 
 /** Alias explicite pour les futurs usages métier. */

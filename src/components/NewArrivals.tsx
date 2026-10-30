@@ -17,19 +17,37 @@ type NewItem = {
   price: string;
 };
 
-const bike = (id: string) => BIKES.find((item) => item.id === id)!;
+// Motos favorites de l'accueil : sélectionnées par `homeFavorite: true`
+// dans BIKES (src/data.ts). Marque, famille, nom, description, image et
+// caractéristiques techniques proviennent de leur fiche BIKES — aucune
+// copie de moto n'existe ni ici, ni dans content.ts.
+const favoriteItems: NewItem[] = BIKES.filter((bike) => bike.homeFavorite).map((bike) => ({
+  id: bike.id,
+  badge: bike.tag ?? "",
+  eyebrow: `${bike.brand} / ${bike.family}`,
+  title: bike.name,
+  desc: bike.desc,
+  image: bike.image,
+  alt: bike.alt,
+  bullets: bike.specs.map((spec) => `${spec.label} : ${spec.value}`),
+  price: bike.price,
+}));
 
-const ITEMS: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
+// Nouveautés qui ne sont pas des motos (équipements, collections…) :
+// textes éditoriaux de content.ts, image depuis leur gamme dans data.ts.
+const editorialItems: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
   id: item.id,
   badge: item.badge,
   eyebrow: item.surTitre,
   title: item.titre,
   desc: item.description,
-  image: item.id === "tld" ? TLD[0].image : bike(item.id).image,
+  image: item.id === "tld" ? TLD[0].image : (BIKES.find((bike) => bike.id === item.id)?.image ?? ""),
   alt: item.alt,
   bullets: [...item.points],
   price: item.prix,
 }));
+
+const ITEMS: NewItem[] = [...favoriteItems, ...editorialItems];
 
 const list: Variants = {
   hidden: {},
