@@ -24,7 +24,23 @@ try {
   await connection.changeUser({ database: env.db.database });
   await connection.query(schema);
 
-  console.log(`Migration terminee : table products prete dans la base "${env.db.database}".`);
+  const migrationsUrl = new URL("../../database/migrations/", import.meta.url);
+  let migrationFiles = [];
+  try {
+    migrationFiles = (await fs.readdir(migrationsUrl))
+      .filter((file) => file.endsWith(".sql"))
+      .sort();
+  } catch {
+    migrationFiles = [];
+  }
+
+  for (const file of migrationFiles) {
+    const migration = await fs.readFile(new URL(file, migrationsUrl), "utf8");
+    await connection.query(migration);
+    console.log(`Migration appliquee : ${file}`);
+  }
+
+  console.log(`Migrations terminees : tables products, users et user_sessions pretes dans "${env.db.database}".`);
 } catch (error) {
   console.error("Migration impossible :", error.message);
   process.exitCode = 1;

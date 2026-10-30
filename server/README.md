@@ -2,7 +2,7 @@
 
 Partie serveur du site FunBike : **Node.js + Express + MySQL**.
 
-Ce dossier contient uniquement l'API serveur. Il n'y a **ni dashboard, ni interface d'administration, ni page HTML** : la gestion des produits se fait par appels API, en attendant le futur écran d'administration.
+Ce dossier contient uniquement l'API serveur. Il n'y a **ni dashboard, ni interface d'administration, ni page HTML** : la gestion des produits et des utilisateurs se fait par appels API authentifiés, en attendant le futur écran d'administration.
 
 ## Rôle
 
@@ -19,6 +19,8 @@ Le serveur gère le catalogue unique du site dans une seule table MySQL `product
 - ordre d'affichage propre à chaque section (`homeNewOrder`, `motosHomeOrder`, `essentialsHomeOrder`).
 
 Le format JSON des produits est exactement celui du type `Product` déjà utilisé par le frontend dans `src/types/index.ts`.
+
+Le serveur gere aussi les comptes du futur dashboard dans les tables `users` et `user_sessions` : connexion, deconnexion, verification d'identite, roles ADMIN / MARKETING et permissions verifiees cote serveur.
 
 ## Installation
 
@@ -40,10 +42,22 @@ DB_PASSWORD=votre_mot_de_passe
 DB_NAME=funbike
 ```
 
-Créez la base et la table `products` :
+Avant la production, definissez aussi un `JWT_SECRET` long et aleatoire dans `server/.env` (au moins 32 caracteres). Exemple de generation :
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Créez la base et les tables `products`, `users` et `user_sessions` :
 
 ```bash
 npm run db:migrate
+```
+
+Creez ensuite le premier compte ADMIN avec la commande interactive dediee. Le mot de passe est saisi sans etre affiche, il n'existe pas dans le code, et la commande refuse de continuer si un ADMIN existe deja :
+
+```bash
+npm run admin:create
 ```
 
 Démarrez l'API :
@@ -77,15 +91,15 @@ Toutes les réponses suivent la forme `{ "success": true, "data": ... }` (ou `{ 
 |---|---|---|
 | `GET` | `/health` | État du serveur |
 | `GET` | `/health/db` | État de la connexion MySQL |
-| `GET` | `/api/products` | Liste des produits |
-| `GET` | `/api/products/:id` | Détail d'un produit |
+| `GET` | `/api/products` | Liste des produits publiés (les connectés peuvent aussi voir les archivés) |
+| `GET` | `/api/products/:id` | Détail d'un produit publié (archivé réservé aux connectés) |
 | `GET` | `/api/home/homeNew` | Nouveautés / Arrivages publiées, triées |
 | `GET` | `/api/home/motosHome` | Section Motos publiée, triée |
 | `GET` | `/api/home/essentialsHome` | Atelier / Essentiels publiés, triés |
 
 Filtres acceptés par `GET /api/products` :
 
-- `status=PUBLISHED` ou `status=ARCHIVED` ;
+- `status=PUBLISHED` ou `status=ARCHIVED` (archive réservé aux utilisateurs connectés) ;
 - `section=homeNew`, `section=motosHome` ou `section=essentialsHome` ;
 - `type=bike` ou `type=part` ;
 - `search=texte` (nom, marque, catégorie) ;
@@ -93,7 +107,46 @@ Filtres acceptés par `GET /api/products` :
 
 Les routes `/api/home/...` appliquent toujours la règle de l'accueil : **produits `PUBLISHED` uniquement, booléen de la section à `true`, triés par l'ordre de la section**.
 
-### Écriture (futur dashboard ou appels API)
+### Authentification
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| `POST` | `/api/auth/login` | Connexion email + mot de passe |
+| `POST` | `/api/auth/refresh` | Renouveler la session depuis le cookie sécurisé |
+| `POST` | `/api/auth/logout` | Déconnexion et révocation de la session |
+| `GET` | `/api/auth/me` | Vérifier l'identité, le rôle et les permissions |
+| `PATCH` | `/api/auth/me` | Modifier son nom ou son email (jamais son rôle) |
+| `POST` | `/api/auth/change-password` | Changer son mot de passe, toutes les sessions sont révoquées |
+
+La connexion renvoie un **jeton d'accès JWT de 15 minutes** à envoyer dans `Authorization: Bearer ...`, plus un **refresh token** opaque dans un cookie `HttpOnly`. Le refresh token dure 7 jours par défaut, tourne à chaque renouvellement, et seul son hash SHA-256 est stocké dans `user_sessions`. La déconnexion révoque la session en base : le jeton d'accès cesse alors d'être accepté immédiatement.
+
+Les mots de passe sont hashés avec **bcrypt** (coût 12 par défaut) et ne sont jamais renvoyés par l'API, pas plus que leur hash. Après 5 échecs de connexion par défaut pour un même couple IP + email, les tentatives sont bloquées pendant 15 minutes (valeurs configurables dans `.env`).
+
+### Utilisateurs et rôles (ADMIN uniquement)
+
+| Méthode | Route | Rôle |
+|---|---|---|
+| `GET` | `/api/users` | Lister les utilisateurs |
+| `POST` | `/api/users` | Créer un ADMIN ou un MARKETING |
+| `GET` | `/api/users/:id` | Détail d'un utilisateur |
+| `PATCH` | `/api/users/:id` | Modifier nom, email, mot de passe, rôle ou permission de suppression |
+| `DELETE` | `/api/users/:id` | Supprimer un utilisateur |
+
+Permissions appliquées côté serveur :
+
+| Action | ADMIN | MARKETING |
+|---|---|---|
+| Consulter le catalogue, y compris les archivés | Oui | Oui |
+| Ajouter / modifier des produits et leurs images | Oui | Oui |
+| Publier / archiver | Oui | Oui |
+| Sélectionner les produits de l'accueil et leur ordre | Oui | Oui |
+| Supprimer des produits | Oui | Seulement si `canDeleteProducts` a été accordé par un ADMIN |
+| Créer ou gérer des utilisateurs, attribuer les rôles | Oui | Non |
+| Modifier son propre rôle ou ses permissions | Non (protégé aussi pour l'ADMIN) | Non |
+
+Un ADMIN ne peut ni supprimer son propre compte, ni retirer le dernier compte ADMIN.
+
+### Écriture des produits (utilisateur connecté)
 
 | Méthode | Route | Rôle |
 |---|---|---|
@@ -103,10 +156,13 @@ Les routes `/api/home/...` appliquent toujours la règle de l'accueil : **produi
 | `PATCH` | `/api/products/:id/status` | Publier ou archiver : `{ "status": "ARCHIVED" }` |
 | `DELETE` | `/api/products/:id` | Supprimer définitivement un produit |
 
+Toutes ces routes exigent `Authorization: Bearer <jeton d'acces>` et la permission correspondante, vérifiée côté serveur.
+
 Exemple de création :
 
 ```bash
 curl -X POST http://localhost:3001/api/products \
+  -H "Authorization: Bearer VOTRE_JETON" \
   -H "Content-Type: application/json" \
   -d '{
     "id": "sherco-sef-250-factory-2026",
@@ -130,36 +186,33 @@ curl -X POST http://localhost:3001/api/products \
   }'
 ```
 
-## Sécurité des écritures
+## Ancienne clé `ADMIN_API_KEY`
 
-Il n'y a pas de système de comptes (pas de dashboard). Pour éviter que n'importe qui puisse modifier le catalogue une fois le serveur en ligne, renseignez `ADMIN_API_KEY` dans `server/.env` : les requêtes d'écriture devront alors envoyer l'en-tête `x-api-key`.
-
-```bash
-curl -X DELETE http://localhost:3001/api/products/mon-produit \
-  -H "x-api-key: votre_cle"
-```
-
-Sans clé configurée, les écritures restent ouvertes : pratique en local, à ne pas utiliser tel quel en production.
+Les comptes utilisateurs sont désormais la règle pour modifier les produits. L'ancienne `ADMIN_API_KEY` est conservée uniquement comme secours **machine à machine** pour les routes produits, et seulement si `ALLOW_API_KEY_WRITES=true` est explicitement activé dans `server/.env` (désactivé par défaut). Elle ne donne jamais accès aux routes `/api/auth` ou `/api/users` et ne remplace pas l'authentification des utilisateurs.
 
 ## Structure
 
 ```text
 server/
 ├── database/
-│   └── schema.sql              # Table unique products
+│   ├── schema.sql              # Tables products, users et user_sessions
+│   └── migrations/002_auth.sql # Meme ajout pour une base deja existante
 ├── src/
 │   ├── app.js                  # Application Express (CORS, securite, routes)
 │   ├── server.js               # Demarrage et arret propre du serveur
+│   ├── auth/                   # Connexion, sessions, JWT, permissions, bcrypt
+│   ├── users/                  # CRUD utilisateurs reserve a l'ADMIN
 │   ├── config/env.js           # Configuration depuis .env
 │   ├── db/pool.js              # Connexion MySQL (pool)
-│   ├── middleware/             # Erreurs JSON et protection des ecritures
+│   ├── middleware/             # Authentification, roles, erreurs JSON
 │   ├── products/
 │   │   ├── product.routes.js   # Routes CRUD et sections d'accueil
 │   │   ├── product.repository.js # Requetes SQL parametrees
 │   │   ├── product.mapper.js   # Conversion MySQL <-> Product
 │   │   └── product.validation.js # Validation des donnees recues
 │   ├── scripts/
-│   │   ├── migrate.js          # Creation de la base et de la table
+│   │   ├── migrate.js          # Creation de la base et application des migrations
+│   │   ├── create-admin.js     # Creation interactive du premier ADMIN
 │   │   └── import-products.js  # Import / mise a jour depuis un JSON
 │   └── utils/http-error.js
 ├── .env.example

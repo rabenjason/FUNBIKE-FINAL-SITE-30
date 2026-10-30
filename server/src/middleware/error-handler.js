@@ -34,6 +34,13 @@ export function errorHandler(error, _request, response, _next) {
   }
 
   if (error?.code === "ER_DUP_ENTRY") {
+    if (String(error.sqlMessage ?? error.message ?? "").includes("uq_users_email")) {
+      return response.status(409).json({
+        success: false,
+        error: { code: "USER_EMAIL_ALREADY_EXISTS", message: "Un utilisateur avec cet email existe deja." },
+      });
+    }
+
     return response.status(409).json({
       success: false,
       error: { code: "PRODUCT_ALREADY_EXISTS", message: "Un produit avec cet id existe deja." },

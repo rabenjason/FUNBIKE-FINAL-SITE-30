@@ -2,6 +2,11 @@ import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { checkDatabaseConnection, pool } from "./db/pool.js";
 
+if (env.nodeEnv === "production" && (env.auth.jwtSecretIsEphemeral || env.auth.jwtSecret.length < 32)) {
+  console.error("JWT_SECRET doit etre defini avec au moins 32 caracteres en production.");
+  process.exit(1);
+}
+
 const app = createApp();
 
 const server = app.listen(env.port, env.host, async () => {
@@ -14,8 +19,12 @@ const server = app.listen(env.port, env.host, async () => {
     console.warn("MySQL non connecte pour le moment. Verifiez server/.env puis lancez : npm run db:migrate");
   }
 
-  if (!env.adminApiKey) {
-    console.warn("ADMIN_API_KEY vide : les ecritures API sont ouvertes. A renseigner avant une mise en production.");
+  if (env.auth.jwtSecretIsEphemeral) {
+    console.warn("JWT_SECRET absent : une cle temporaire est utilisee pour ce demarrage (developpement uniquement).");
+  }
+
+  if (env.allowApiKeyWrites && env.adminApiKey) {
+    console.warn("ALLOW_API_KEY_WRITES=true : l'ancienne cle API peut modifier les produits sans compte utilisateur.");
   }
 });
 

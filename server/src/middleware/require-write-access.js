@@ -8,16 +8,21 @@ function secureCompare(supplied, expected) {
   return suppliedBuffer.length === expectedBuffer.length && timingSafeEqual(suppliedBuffer, expectedBuffer);
 }
 
+export function hasValidApiKey(request) {
+  if (!env.adminApiKey) return false;
+  const suppliedKey = request.get("x-api-key") ?? "";
+  return secureCompare(suppliedKey, env.adminApiKey);
+}
+
 /**
- * Protection simple des ecritures, sans dashboard ni systeme de comptes.
- * Si ADMIN_API_KEY est vide, les ecritures restent ouvertes (mode local).
- * Des qu'une cle est configuree, l'en-tete x-api-key devient obligatoire.
+ * Ancienne protection machine, conservee pour compatibilite.
+ * Les produits l'utilisent uniquement comme secours optionnel derriere
+ * ALLOW_API_KEY_WRITES ; l'authentification utilisateur reste la regle.
  */
 export function requireWriteAccess(request, _response, next) {
   if (!env.adminApiKey) return next();
 
-  const suppliedKey = request.get("x-api-key") ?? "";
-  if (!secureCompare(suppliedKey, env.adminApiKey)) {
+  if (!hasValidApiKey(request)) {
     return next(new HttpError(401, "UNAUTHORIZED", "Cle API invalide ou absente."));
   }
 
