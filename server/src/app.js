@@ -5,16 +5,20 @@ import morgan from "morgan";
 import { env } from "./config/env.js";
 import { checkDatabaseConnection } from "./db/pool.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
+import authRoutes from "./auth/auth.routes.js";
 import productRoutes from "./products/product.routes.js";
+import userRoutes from "./users/user.routes.js";
 import { asyncHandler } from "./utils/http-error.js";
 
 export function createApp() {
   const app = express();
 
   app.disable("x-powered-by");
+  app.set("trust proxy", env.trustProxy);
   app.use(helmet());
   app.use(
     cors({
+      credentials: true,
       origin(origin, callback) {
         if (!origin || env.corsOrigins.includes("*") || env.corsOrigins.includes(origin)) {
           return callback(null, true);
@@ -44,6 +48,8 @@ export function createApp() {
     }),
   );
 
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
   app.use("/api", productRoutes);
   app.use(notFoundHandler);
   app.use(errorHandler);

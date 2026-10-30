@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { requireWriteAccess } from "../middleware/require-write-access.js";
+import { PERMISSIONS } from "../auth/permissions.js";
+import { optionalAuthenticate, requireProductPermission } from "../middleware/auth.js";
 import { HttpError, asyncHandler } from "../utils/http-error.js";
 import * as repository from "./product.repository.js";
 import {
@@ -38,8 +39,13 @@ router.get(
 /** Liste des produits : filtres status, section, type, search, limit et offset. */
 router.get(
   "/products",
+  optionalAuthenticate,
   asyncHandler(async (request, response) => {
     const filters = parseProductListQuery(request.query);
+
+    // Les visiteurs voient uniquement le catalogue publie. Les utilisateurs
+    // connectes (ADMIN / MARKETING) peuvent aussi consulter les archives.
+    if (!request.user) filters.status = "PUBLISHED";
     const { products, total } = await repository.listProducts(filters);
 
     return response.json({
@@ -57,8 +63,12 @@ router.get(
 /** Detail d'un produit. */
 router.get(
   "/products/:id",
+  optionalAuthenticate,
   asyncHandler(async (request, response) => {
     const product = await requireExistingProduct(request.params.id);
+    if (product.status === "ARCHIVED" && !request.user) {
+      throw new HttpError(404, "PRODUCT_NOT_FOUND", "Produit introuvable.");
+    }
     return sendProduct(response, 200, product);
   }),
 );
@@ -66,7 +76,7 @@ router.get(
 /** Ajouter un produit. */
 router.post(
   "/products",
-  requireWriteAccess,
+  requireProductPermission(PERMISSIONS.PRODUCTS_CREATE),
   asyncHandler(async (request, response) => {
     const product = validateProductPayload(request.body);
     const created = await repository.createProduct(product);
@@ -77,7 +87,7 @@ router.post(
 /** Remplacer completement un produit existant. */
 router.put(
   "/products/:id",
-  requireWriteAccess,
+  requireProductPermission(PERMISSIONS.PRODUCTS_UPDATE),
   asyncHandler(async (request, response) => {
     await requireExistingProduct(request.params.id);
     const product = validateProductPayload(request.body, { pathId: request.params.id });
@@ -89,7 +99,7 @@ router.put(
 /** Modifier partiellement un produit : seuls les champs fournis changent. */
 router.patch(
   "/products/:id",
-  requireWriteAccess,
+  requireProductPermission(PERMISSIONS.PRODUCTS_UPDATE),
   asyncHandler(async (request, response) => {
     const current = await requireExistingProduct(request.params.id);
     const product = validateProductPayload(
@@ -104,7 +114,7 @@ router.patch(
 /** Publier ou archiver un produit. */
 router.patch(
   "/products/:id/status",
-  requireWriteAccess,
+  requireProductPermission(PERMISSIONS.PRODUCTS_PUBLISH),
   asyncHandler(async (request, response) => {
     await requireExistingProduct(request.params.id);
     const status = validateStatusPayload(request.body);
@@ -116,7 +126,7 @@ router.patch(
 /** Supprimer definitivement un produit. */
 router.delete(
   "/products/:id",
-  requireWriteAccess,
+  requireProductPermission(PERMISSIONS.PRODUCTS_DELETE),
   asyncHandler(async (request, response) => {
     const deleted = await repository.deleteProduct(request.params.id);
     if (!deleted) throw new HttpError(404, "PRODUCT_NOT_FOUND", "Produit introuvable.");
