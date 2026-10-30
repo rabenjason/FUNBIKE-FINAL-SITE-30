@@ -3,6 +3,7 @@ import { faArrowRight, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { motion, type Variants } from "framer-motion";
 import { BIKES } from "../data";
 import SmartImage from "./SmartImage";
+import { content } from "../constants/content";
 
 type NewItem = {
   id: string;
@@ -18,41 +19,20 @@ type NewItem = {
 
 const bike = (id: string) => BIKES.find((item) => item.id === id)!;
 
-const ITEMS: NewItem[] = [
-  {
-    id: "sherco-sef-250-factory-2026",
-    badge: "Nouveauté 2026",
-    eyebrow: "Sherco / Enduro",
-    title: "SEF 250 Factory",
-    desc: "La nouvelle génération Factory arrive chez Funbike : suspensions KYB, châssis affûté et moteur 250 cc.",
-    image: bike("sherco-sef-250-factory-2026").image,
-    alt: "Sherco SEF 250 Factory 2026 sur piste",
-    bullets: ["Suspensions KYB", "Deux cartographies", "Freinage Galfer"],
-    price: "Sur devis",
-  },
-  {
-    id: "tvs-200-4v",
-    badge: "Arrivage",
-    eyebrow: "TVS / Urbain sportif",
-    title: "Apache 200 4V",
-    desc: "Une sportive urbaine pensée pour le quotidien : moteur 200 cc, ABS et plusieurs modes de conduite.",
-    image: bike("tvs-200-4v").image,
-    alt: "TVS Apache 200 4V",
-    bullets: ["ABS", "Modes de conduite", "Tableau de bord digital"],
-    price: "Sur devis",
-  },
-  {
-    id: "tld",
-    badge: "Collection 2026",
-    eyebrow: "Troy Lee Designs / Pilote",
-    title: "Casques GP Pro",
-    desc: "Les nouveaux graphismes Pulse, Slides et Segment viennent renouveler la gamme de casques pilote.",
-    image: "https://troyleedesigns.eu/cdn/shop/files/TLD_M26D2_GPPRO_PULSE_BLACK_01.jpg?v=1785777688&width=533",
-    alt: "Casque Troy Lee Designs GP Pro Pulse Black",
-    bullets: ["Coque légère", "Ventilation travaillée", "Graphismes inédits"],
-    price: "Sur devis",
-  },
-];
+const ITEMS: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
+  id: item.id,
+  badge: item.badge,
+  eyebrow: item.surTitre,
+  title: item.titre,
+  desc: item.description,
+  image:
+    item.id === "tld"
+      ? "https://troyleedesigns.eu/cdn/shop/files/TLD_M26D2_GPPRO_PULSE_BLACK_01.jpg?v=1785777688&width=533"
+      : bike(item.id).image,
+  alt: item.alt,
+  bullets: [...item.points],
+  price: item.prix,
+}));
 
 const list: Variants = {
   hidden: {},
@@ -71,14 +51,14 @@ export default function NewArrivals({ go }: { go: (p: string, id?: string) => vo
         <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-t border-black/15 pt-4 dark:border-white/15 sm:mb-10">
           <div>
             <p className="fluid-eyebrow mb-2 font-bold uppercase text-[#98741b] dark:text-[#ffd100]">
-              Nouveautés / Arrivages
+              {content.accueil.nouveautes.surTitre}
             </p>
             <h2 className="fluid-h2 font-display font-semibold text-[#171816] dark:text-[#f2f0ea]">
-              Frais de l'atelier.
+              {content.accueil.nouveautes.titre}
             </h2>
           </div>
           <p className="fluid-body max-w-sm text-black/55 dark:text-white/55">
-            Trois nouveautés sélectionnées par l'équipe Funbike. Disponibilités sur demande.
+            {content.accueil.nouveautes.description}
           </p>
         </div>
 
@@ -99,7 +79,7 @@ export default function NewArrivals({ go }: { go: (p: string, id?: string) => vo
               <button
                 onClick={() => go(product.id === "tld" ? "equipements" : "product", product.id)}
                 className="fb-stage-white relative block aspect-[16/10] overflow-hidden text-left"
-                aria-label={`Découvrir ${product.title}`}
+                aria-label={`${content.accueil.nouveautes.decouvrirPrefix} ${product.title}`}
               >
                 <SmartImage
                   src={product.image}
@@ -130,14 +110,14 @@ export default function NewArrivals({ go }: { go: (p: string, id?: string) => vo
 
                 <div className="mt-5 flex items-center justify-between border-t border-black/15 pt-3 dark:border-white/15">
                   <div>
-                    <p className="text-[9px] uppercase tracking-[0.14em] text-black/45 dark:text-white/45">Tarif</p>
+                    <p className="text-[9px] uppercase tracking-[0.14em] text-black/45 dark:text-white/45">{content.accueil.nouveautes.tarif}</p>
                     <p className="mt-0.5 text-xs font-semibold text-[#171816] dark:text-[#f2f0ea]">{product.price}</p>
                   </div>
                   <button
                     onClick={() => go(product.id === "tld" ? "equipements" : "product", product.id)}
                     className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-[#171816] transition hover:text-black/60 dark:text-[#f2f0ea] dark:hover:text-white/70"
                   >
-                    Voir le produit
+                    {content.boutons.voirProduit}
                     <FontAwesomeIcon icon={faArrowRight} className="transition-transform group-hover:translate-x-1" />
                   </button>
                 </div>

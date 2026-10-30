@@ -19,23 +19,24 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { LOGO } from "../data";
+import { content } from "../constants/content";
 
 export type Route = { page: string; id?: string };
 
 export const NAV = [
-  { key: "home", label: "Accueil" },
-  { key: "motos", label: "Motos" },
-  { key: "equipements", label: "Équipements" },
-  { key: "spares", label: "Pièces détachées" },
-  { key: "revendeurs", label: "Revendeurs" },
-  { key: "contact", label: "Contact" },
+  { key: "home", label: content.navigation.accueil },
+  { key: "motos", label: content.navigation.motos },
+  { key: "equipements", label: content.navigation.equipements },
+  { key: "spares", label: content.navigation.piecesDetachees },
+  { key: "revendeurs", label: content.navigation.revendeurs },
+  { key: "contact", label: content.navigation.contact },
 ];
 
 function BrandMark({ large = false }: { large?: boolean }) {
   return (
     <img
       src={LOGO}
-      alt="Funbike Madagascar"
+      alt={content.site.logoAlt}
       className={
         "logo-clean block w-auto object-contain " +
         (large
@@ -61,7 +62,7 @@ export function Header({
   return (
     <header className="glass-header sticky top-0 z-40 border-b border-black/10 dark:border-white/10">
       <div className="mx-auto flex h-[64px] w-full max-w-(--container-site) items-center gap-4 px-4 sm:h-[68px] sm:px-7 lg:px-10">
-        <button onClick={() => go("home")} aria-label="Funbike, accueil" className="shrink-0">
+        <button onClick={() => go("home")} aria-label={`${content.site.nom}, ${content.navigation.accueil.toLowerCase()}`} className="shrink-0">
           <BrandMark />
         </button>
 
@@ -99,7 +100,7 @@ export function Header({
           <ThemeToggle dark={dark} toggle={toggle} />
           <button
             onClick={() => setOpen((value) => !value)}
-            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-label={open ? content.navigation.fermerMenu : content.navigation.ouvrirMenu}
             className="grid h-9 w-9 place-items-center border border-black/15 text-sm text-[#171816] md:hidden dark:border-white/15 dark:text-white"
           >
             <FontAwesomeIcon icon={open ? faXmark : faBars} />
@@ -145,7 +146,7 @@ export function ThemeToggle({ dark, toggle }: { dark: boolean; toggle: () => voi
   return (
     <button
       onClick={toggle}
-      aria-label={dark ? "Activer le mode jour" : "Activer le mode nuit"}
+      aria-label={dark ? content.navigation.modeJour : content.navigation.modeNuit}
       className="glass-panel grid h-9 w-9 place-items-center border-black/10 text-sm text-[#171816] transition hover:border-[#ffd100] hover:text-[#a57d14] dark:border-white/15 dark:text-white dark:hover:border-[#ffd100] dark:hover:text-[#ffd100]"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -169,13 +170,11 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const shop = [
-    { label: "Motos Sherco", page: "motos", id: "Sherco", icon: faMotorcycle },
-    { label: "Motos TVS", page: "motos", id: "TVS", icon: faMotorcycle },
-    { label: "Équipements pilote", page: "equipements", id: undefined as string | undefined, icon: faHelmetSafety },
-    { label: "Pièces détachées", page: "spares", id: undefined as string | undefined, icon: faGears },
-    { label: "Nos revendeurs", page: "revendeurs", id: undefined as string | undefined, icon: faStore },
-  ];
+  const shopIcons = [faMotorcycle, faMotorcycle, faHelmetSafety, faGears, faStore];
+  const shop = content.footer.catalogueLiens.map((item, index) => ({
+    ...item,
+    icon: shopIcons[index] ?? faMotorcycle,
+  }));
 
   const stagger = {
     hidden: {},
@@ -205,13 +204,13 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
         >
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#ffd100] sm:text-[11px]">
-              Funbike · Madagascar
+              {content.footer.appelSurTitre}
             </p>
             <p className="mt-2 font-display text-[clamp(1.35rem,1.1rem+1.6vw,2.1rem)] font-semibold leading-tight tracking-tight text-white">
-              Une question, un projet moto&nbsp;?
+              {content.footer.appelTitre}
             </p>
             <p className="mt-1.5 max-w-md text-xs leading-relaxed text-white/60 sm:text-sm">
-              Devis, essai, pièce ou équipement — notre équipe vous répond rapidement.
+              {content.footer.appelDescription}
             </p>
           </div>
 
@@ -221,7 +220,7 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
               onClick={() => go("contact")}
               className="group inline-flex min-h-12 w-full items-center justify-between gap-3 bg-[#ffd100] px-5 py-3 text-[11px] font-extrabold uppercase tracking-[0.1em] text-[#171816] shadow-sm transition hover:bg-[#ffe36b] active:bg-[#ffd100] sm:w-auto sm:min-w-48 sm:justify-center"
             >
-              <span className="truncate">Demander un devis</span>
+              <span className="truncate">{content.footer.demanderDevis}</span>
               <FontAwesomeIcon icon={faArrowRight} className="shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
             </motion.button>
             <motion.a
@@ -230,7 +229,7 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
               className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 border border-white/20 bg-white/[0.03] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition hover:border-[#ffd100] hover:text-[#ffd100] active:bg-white/10 sm:w-auto"
             >
               <FontAwesomeIcon icon={faPhone} className="shrink-0" />
-              <span className="truncate">Appeler</span>
+              <span className="truncate">{content.footer.appeler}</span>
             </motion.a>
           </div>
         </motion.div>
@@ -247,21 +246,25 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
           <motion.div variants={rise} className="min-w-0 md:col-span-2 lg:col-span-1">
             <button
               onClick={() => go("home")}
-              aria-label="Retour à l'accueil"
+              aria-label={content.navigation.retourAccueil}
               className="block text-left transition hover:opacity-90"
             >
               <BrandMark large />
             </button>
             <p className="mt-3.5 max-w-sm text-xs leading-relaxed text-white/60 sm:text-sm">
-              Le terrain change. La passion reste. Motos Sherco, Fantic &amp; TVS, pièces détachées et
-              équipements pilote pour les routes de Madagascar.
+              {content.footer.descriptionMarque}
             </p>
             <div className="mt-4 border-t border-white/[0.08] pt-3">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ffd100]">
-                Distributeur exclusif
+                {content.footer.distributeurExclusif}
               </p>
               <p className="mt-1 text-xs font-semibold text-white/85">
-                Sherco <span className="text-[#ffd100]">·</span> Fantic <span className="text-[#ffd100]">·</span> TVS
+                {content.footer.marquesExclusives.map((name, index) => (
+                  <span key={name}>
+                    {index > 0 && <span className="text-[#ffd100]"> · </span>}
+                    {name}
+                  </span>
+                ))}
               </p>
             </div>
           </motion.div>
@@ -269,9 +272,9 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
           {/* Links Section: On mobile, grouped into a responsive 2-column grid */}
           <div className="grid grid-cols-2 gap-6 sm:contents">
             {/* Explorer */}
-            <motion.nav variants={rise} aria-label="Explorer le site">
+            <motion.nav variants={rise} aria-label={content.footer.explorer}>
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffd100]">
-                Explorer
+                {content.footer.explorer}
               </p>
               <ul className="space-y-1">
                 {NAV.map((item) => (
@@ -290,13 +293,13 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
             {/* Catalogue */}
             <motion.div variants={rise}>
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffd100]">
-                Catalogue
+                {content.footer.catalogue}
               </p>
               <ul className="space-y-1">
                 {shop.map((u) => (
                   <li key={u.label}>
                     <button
-                      onClick={() => go(u.page, u.id)}
+                      onClick={() => go(u.page, "id" in u ? u.id : undefined)}
                       className="group flex min-h-9 w-full items-center gap-2 text-left text-xs font-medium text-white/70 transition-colors hover:text-white active:text-[#ffd100] sm:text-sm"
                     >
                       <FontAwesomeIcon icon={u.icon} className="w-3 text-[10px] text-[#ffd100] opacity-80" />
@@ -311,15 +314,15 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
           {/* Contact Details Column */}
           <motion.div variants={rise} className="min-w-0 md:col-span-2 lg:col-span-1">
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#ffd100]">
-              Nous trouver
+              {content.footer.nousTrouver}
             </p>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li className="flex items-start gap-3 text-white/75">
                 <FontAwesomeIcon icon={faLocationDot} className="mt-1 w-3.5 shrink-0 text-[#ffd100]" />
                 <span className="leading-snug">
-                  Showroom &amp; atelier Funbike
+                  {content.footer.showroom}
                   <br />
-                  <span className="text-white/50">Ambodivona, Antananarivo</span>
+                  <span className="text-white/50">{content.footer.adresse}</span>
                 </span>
               </li>
               <li>
@@ -328,7 +331,7 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
                   className="flex min-h-10 items-center gap-3 text-white/85 transition hover:text-[#ffd100]"
                 >
                   <FontAwesomeIcon icon={faPhone} className="w-3.5 shrink-0 text-[#ffd100]" />
-                  <span className="font-semibold">+261 34 00 000 00</span>
+                  <span className="font-semibold">{content.site.telephoneAffiche}</span>
                 </a>
               </li>
               <li>
@@ -337,12 +340,12 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
                   className="flex min-h-10 items-center gap-3 text-white/85 transition hover:text-[#ffd100]"
                 >
                   <FontAwesomeIcon icon={faEnvelope} className="w-3.5 shrink-0 text-[#ffd100]" />
-                  <span className="break-all font-semibold">contact@funbike.mg</span>
+                  <span className="break-all font-semibold">{content.site.email}</span>
                 </a>
               </li>
               <li className="flex items-center gap-3 text-white/60">
                 <FontAwesomeIcon icon={faClock} className="w-3.5 shrink-0 text-[#ffd100]" />
-                <span>Lun – Sam · 8h00 – 17h30</span>
+                <span>{content.site.horaires}</span>
               </li>
             </ul>
 
@@ -350,7 +353,7 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
               onClick={() => go("revendeurs")}
               className="mt-4 inline-flex min-h-10 items-center gap-2 border-b border-[#ffd100] pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:text-[#ffd100]"
             >
-              Tous nos revendeurs <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
+              {content.footer.revendeurs} <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
             </button>
           </motion.div>
         </motion.div>
@@ -358,7 +361,7 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
         {/* 3. BOTTOM BAR */}
         <div className="flex flex-col gap-4 border-t border-white/10 pt-5 text-[11px] sm:flex-row sm:items-center sm:justify-between">
           <p className="text-center text-[10px] uppercase tracking-[0.12em] text-white/40 sm:text-left">
-            © {new Date().getFullYear()} Funbike Madagascar · Tous droits réservés
+            © {new Date().getFullYear()} {content.footer.droitsReserves}
           </p>
 
           <div className="flex items-center justify-center gap-3 sm:justify-end">
@@ -366,12 +369,12 @@ export function Footer({ go, onCookies }: { go: (p: string, id?: string) => void
               onClick={onCookies}
               className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-[10px] font-bold uppercase tracking-[0.1em] text-white/70 transition hover:border-[#ffd100] hover:text-[#ffd100]"
             >
-              <FontAwesomeIcon icon={faCookieBite} /> Cookies
+              <FontAwesomeIcon icon={faCookieBite} /> {content.footer.cookies}
             </button>
             <button
               type="button"
               onClick={scrollTop}
-              aria-label="Retour en haut de page"
+              aria-label={content.footer.hautDePage}
               className="grid h-10 w-10 place-items-center rounded-full bg-[#ffd100] text-xs font-bold text-[#171816] shadow-sm transition hover:bg-[#ffe36b] active:scale-95"
             >
               <FontAwesomeIcon icon={faArrowUp} />
@@ -401,7 +404,7 @@ export function Section({
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-t border-black/15 pt-4 dark:border-white/15 sm:mb-8 md:mb-10">
         <div>
           <p className="fluid-eyebrow mb-2 font-bold uppercase text-[#a27b17] dark:text-[#ffd100]">
-            {number ?? "Funbike / sélection"}
+            {number ?? content.sections.numeroParDefaut}
           </p>
           <h2 className="fluid-h2 font-display font-semibold text-[#171816] dark:text-[#f2f0ea]">
             {title}
@@ -425,7 +428,7 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle: strin
       <div className="mx-auto grid w-full max-w-(--container-site) gap-3 px-4 py-5 sm:px-6 sm:py-6 md:grid-cols-[1fr_0.7fr] md:items-end md:gap-6 md:px-8 lg:grid-cols-[1fr_0.55fr] lg:px-10 lg:py-8">
         <div>
           <p className="mb-1.5 text-[clamp(0.58rem,0.55rem+0.12vw,0.68rem)] font-bold uppercase tracking-[0.18em] text-[#a27b17] dark:text-[#ffd100]">
-            Funbike / Madagascar
+            {content.sections.surTitrePage}
           </p>
           <h1 className="font-display text-[clamp(1.85rem,1.35rem+2.2vw,3.15rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-[#171816] dark:text-[#f2f0ea]">
             {title}

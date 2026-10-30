@@ -1,6 +1,22 @@
-export const LOGO = "https://funbike.mg/wp-content/themes/funbike/images/logo-funbike.png";
+import type {
+  AccessoryCategory,
+  Bike,
+  Brand,
+  Category,
+  Part,
+  PartType,
+} from "./types";
 
-export type Brand = { name: string; src: string };
+export type {
+  AccessoryCategory,
+  Bike,
+  Brand,
+  Category,
+  Part,
+  PartType,
+};
+
+export const LOGO = "https://funbike.mg/wp-content/themes/funbike/images/logo-funbike.png";
 
 export const BRANDS: Brand[] = [
   { name: "TVS", src: "https://funbike.mg/wp-content/uploads/2026/02/tvs-logo.png" },
@@ -16,8 +32,6 @@ export const BRANDS: Brand[] = [
     src: "https://funbike.mg/wp-content/uploads/2026/02/sticker-troy-lee-designs-shield-logo-rouge-16cm.png",
   },
 ];
-
-export type Category = { title: string; desc: string; src: string; to: string; brand?: string };
 
 export const CATEGORIES: Category[] = [
   {
@@ -47,20 +61,6 @@ export const CATEGORIES: Category[] = [
     brand: "tld",
   },
 ];
-
-export type Bike = {
-  id: string;
-  name: string;
-  brand: string;
-  family: "Off-road" | "Urbain" | "3 roues";
-  price: string;
-  tag?: string;
-  alt: string;
-  image: string;
-  gallery?: string[];
-  specs: { label: string; value: string }[];
-  desc: string;
-};
 
 export const BIKES: Bike[] = [
   {
@@ -266,28 +266,6 @@ export const BIKES: Bike[] = [
     desc: "Une série personnalisée par nos ateliers Funbike.",
   },
 ];
-
-export type AccessoryCategory = "Casques" | "Blousons" | "Gants" | "Bottes" | "Pièces";
-
-export type Part = {
-  id: string;
-  name: string;
-  price: string;
-  image: string;
-  kind: "piece" | "tld" | "gaerne" | "mt" | "tvs";
-  category?: AccessoryCategory;
-  compatibleBrand?: "Universal" | "TVS" | "Sherco" | "Fantic";
-  partType?: PartType;
-  sourceUrl?: string;
-  /** Galerie optionnelle — si absente, la fiche détail utilise [image]. */
-  gallery?: string[];
-  /** Courte description — sinon générée automatiquement dans la fiche. */
-  desc?: string;
-  /** Caractéristiques — sinon générées automatiquement dans la fiche. */
-  specs?: { label: string; value: string }[];
-};
-
-export type PartType = "Pneus" | "Freinage" | "Transmission" | "Filtration" | "Pièces moteur" | "Consommables";
 
 export const PARTS: Part[] = [
   {

@@ -13,20 +13,9 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 
-export type Dealer = {
-  key: string;
-  city: string;
-  name: string;
-  kind: string;
-  address: string;
-  hours: string;
-  phone: string;
-  email: string;
-  desc: string;
-  lat: number;
-  lon: number;
-  services: string[];
-};
+import type { Dealer } from "../types";
+
+export type { Dealer };
 
 // Verify contact details and exact street coordinates before publishing.
 export const DEALERS: Dealer[] = [

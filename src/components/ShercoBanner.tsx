@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
+import { content } from "../constants/content";
 
 /** Parent: reveals its children one after the other when scrolled into view */
 const group: Variants = {
@@ -34,7 +35,7 @@ export default function ShercoBanner({ go }: { go: (page: string, id?: string) =
     <section className="relative isolate min-h-[330px] overflow-hidden bg-[#1a1b18] sm:min-h-[440px]">
       <motion.img
         src="https://www.sherco.com/wp-content/uploads/SHERCO50ccV2-32.jpg"
-        alt="Moto Sherco 50 cc tout-terrain"
+        alt={content.accueil.sherco.imageAlt}
         loading="lazy"
         initial={{ scale: 1.035 }}
         whileInView={{ scale: 1 }}
@@ -55,17 +56,17 @@ export default function ShercoBanner({ go }: { go: (page: string, id?: string) =
           className="max-w-xl"
         >
           <motion.p variants={fromLeft} className="fluid-eyebrow font-bold uppercase text-[#ffd100]">
-            L'univers Sherco / À partir de 50 cc
+            {content.accueil.sherco.surTitre}
           </motion.p>
 
           <motion.h2 variants={fromLeft} className="fluid-h1 mt-3 font-display font-semibold text-white">
-            La première piste
+            {content.accueil.sherco.titreLigne1}
             <br />
-            est la plus belle.
+            {content.accueil.sherco.titreLigne2}
           </motion.h2>
 
           <motion.p variants={fromLeft} className="fluid-body mt-3 max-w-md text-white/80">
-            Découvrez l'esprit Sherco avec Funbike. Pour les jeunes pilotes, les familles et les amoureux du tout-terrain.
+            {content.accueil.sherco.description}
           </motion.p>
 
           <motion.button
@@ -73,7 +74,7 @@ export default function ShercoBanner({ go }: { go: (page: string, id?: string) =
             onClick={() => go("motos")}
             className="fluid-btn mt-5 inline-flex items-center gap-3 border-b border-[#ffd100] pb-2 font-bold uppercase text-white transition hover:text-[#ffd100]"
           >
-            Explorer les motos Sherco <FontAwesomeIcon icon={faArrowRight} />
+            {content.accueil.sherco.bouton} <FontAwesomeIcon icon={faArrowRight} />
           </motion.button>
         </motion.div>
       </div>
