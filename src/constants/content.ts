@@ -2,9 +2,14 @@
  * Textes fixes du site FunBike.
  *
  * Objectif : modifier un texte visible sans ouvrir chaque composant.
- * Les données dynamiques (motos, produits, images, revendeurs, promotions)
+ * Les données dynamiques (motos, produits, images, promotions)
  * restent dans leurs fichiers de données et sont typées dans src/types/.
+ * Exception : TOUTES les informations des revendeurs sont centralisées
+ * ici — les textes de la page dans `revendeurs` ci-dessous et les fiches
+ * complètes des revendeurs dans le tableau `REVENDEURS` en bas de ce
+ * fichier. La page Revendeurs ne fait que les afficher.
  */
+import type { Dealer } from "../types";
 export const content = {
   site: {
     nom: "Funbike",
@@ -339,6 +344,16 @@ export const content = {
     reseauDescription: "Touchez une adresse pour la situer sur la carte.",
     devenirRevendeur: "Et si la prochaine adresse était la vôtre ?",
     boutonRevendeur: "Devenir revendeur",
+
+    /**
+     * Fiches complètes des revendeurs (nom, ville, adresse, téléphone,
+     * description, horaires, e-mail, services, coordonnées GPS,
+     * itinéraire Google Maps, image et logo) :
+     * → voir le tableau `REVENDEURS` en bas de ce fichier.
+     * C'est le seul endroit où ajouter, supprimer ou modifier un
+     * revendeur ; la page Revendeurs (src/pages/Dealers.tsx) ne fait
+     * que récupérer et afficher ces données.
+     */
   },
 
   contact: {
@@ -498,3 +513,134 @@ export const content = {
 } as const;
 
 export type SiteContent = typeof content;
+
+/**
+ * ─────────────────────────────────────────────────────────────────────
+ * REVENDEURS — SOURCE UNIQUE DE LA PAGE REVENDEURS
+ * ─────────────────────────────────────────────────────────────────────
+ * Toutes les informations de tous les revendeurs sont centralisées ici,
+ * comme `BIKES`, `BRANDS` ou `CATEGORIES` pour le reste du site.
+ * La page `src/pages/Dealers.tsx` ne contient aucune donnée de
+ * revendeur : elle récupère uniquement ce tableau et l'affiche.
+ *
+ * ➕ AJOUTER un revendeur : copiez un bloc `{ … }` ci-dessous, collez-le
+ *    à la suite (n'oubliez pas la virgule entre les blocs) et remplissez
+ *    chaque champ. Choisissez une `key` unique, en minuscules et sans
+ *    espaces (ex. "antsirabe") : c'est elle qui identifie le revendeur.
+ * ➖ SUPPRIMER un revendeur : retirez entièrement son bloc `{ … }`
+ *    (et la virgule qui le précède ou le suit). Gardez au moins un
+ *    revendeur dans le tableau.
+ * ✏️ MODIFIER un revendeur : changez directement la valeur du champ
+ *    concerné dans son bloc. Aucun autre fichier n'est à toucher.
+ *
+ * Champs de chaque revendeur :
+ * - key                     : identifiant unique (minuscules, sans espaces)
+ * - name                    : nom affiché (ex. "Funbike Showroom")
+ * - city                    : ville affichée dans les onglets et l'annuaire
+ * - kind                    : type de point de vente (ex. "Point de vente")
+ * - address                 : adresse exacte affichée
+ * - hours                   : horaires affichés
+ * - phone                   : téléphone affiché (le lien d'appel en dérive)
+ * - email                   : e-mail du bouton « Écrire »
+ * - desc                    : description affichée sous le nom
+ * - lat / lon               : latitude / longitude GPS du point sur la carte
+ * - googleMapsItineraire    : lien Google Maps du bouton « Itinéraire » ;
+ *                             laissez "" pour le régénérer depuis lat/lon
+ * - services                : étiquettes affichées sous les coordonnées
+ * - image / logo            : URL d'une image / d'un logo du revendeur ;
+ *                             laissez "" si aucun visuel (la page actuelle
+ *                             n'affiche ni image ni logo par revendeur,
+ *                             ces champs sont prêts à y être renseignés)
+ *
+ * ⚠️ GPS : aucune coordonnée n'a été inventée. Les valeurs actuelles
+ * sont reprises telles quelles du site existant (elles situent le
+ * quartier / la ville) et doivent être remplacées par les coordonnées
+ * GPS exactes de chaque adresse — voir la marche à suivre auprès de
+ * l'équipe ou dans Google Maps (« Itinéraire » → point d'arrivée).
+ * Quand vous changez lat/lon, mettez aussi à jour
+ * `googleMapsItineraire`, ou laissez-le vide ("").
+ * ─────────────────────────────────────────────────────────────────────
+ */
+// Verify contact details before publishing.
+export const REVENDEURS: Dealer[] = [
+  {
+    key: "antananarivo",
+    name: "Funbike Showroom",
+    city: "Antananarivo",
+    kind: "Showroom principal",
+    address: "Ambodivona, Antananarivo",
+    hours: "Lun – Sam · 8h30 – 17h30",
+    phone: "+261 34 00 000 00",
+    email: "contact@funbike.mg",
+    desc: "Le point de départ de votre prochaine aventure. Retrouvez les motos, les équipements et notre atelier à la même adresse.",
+    // À VÉRIFIER : coordonnées actuelles du site (quartier Ambodivona).
+    lat: -18.8792,
+    lon: 47.5079,
+    // À VÉRIFIER : déduit des coordonnées ci-dessus.
+    googleMapsItineraire:
+      "https://www.google.com/maps/dir/?api=1&destination=-18.8792,47.5079",
+    services: ["Motos", "Essais", "Atelier", "Pièces"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "toamasina",
+    name: "Funbike Est",
+    city: "Toamasina",
+    kind: "Point de vente",
+    address: "Boulevard Joffre, Toamasina",
+    hours: "Lun – Ven · 9h – 17h",
+    phone: "+261 34 11 111 11",
+    email: "est@funbike.mg",
+    desc: "Sur la côte est, une équipe à vos côtés pour choisir votre moto, vous équiper et assurer l'entretien courant.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Toamasina).
+    lat: -18.1492,
+    lon: 49.4023,
+    // À VÉRIFIER : déduit des coordonnées ci-dessus.
+    googleMapsItineraire:
+      "https://www.google.com/maps/dir/?api=1&destination=-18.1492,49.4023",
+    services: ["Motos", "Équipements", "Entretien"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "mahajanga",
+    name: "Funbike Nord-Ouest",
+    city: "Mahajanga",
+    kind: "Point de vente",
+    address: "Avenue de France, Mahajanga",
+    hours: "Lun – Ven · 9h – 17h",
+    phone: "+261 34 22 222 22",
+    email: "ouest@funbike.mg",
+    desc: "Votre relais Funbike dans le nord-ouest pour les motos, les essais et les commandes de pièces.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Mahajanga).
+    lat: -15.7167,
+    lon: 46.3167,
+    // À VÉRIFIER : déduit des coordonnées ci-dessus.
+    googleMapsItineraire:
+      "https://www.google.com/maps/dir/?api=1&destination=-15.7167,46.3167",
+    services: ["Motos", "Essais", "Pièces"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "fianarantsoa",
+    name: "Atelier Partenaire",
+    city: "Fianarantsoa",
+    kind: "Atelier partenaire",
+    address: "Route nationale 7, Fianarantsoa",
+    hours: "Lun – Sam · 8h – 16h",
+    phone: "+261 34 33 333 33",
+    email: "sud@funbike.mg",
+    desc: "Sur la RN7, un atelier partenaire pour l'entretien, les réparations et le montage de pièces.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Fianarantsoa).
+    lat: -21.4527,
+    lon: 47.0857,
+    // À VÉRIFIER : déduit des coordonnées ci-dessus.
+    googleMapsItineraire:
+      "https://www.google.com/maps/dir/?api=1&destination=-21.4527,47.0857",
+    services: ["Atelier", "Pièces", "Entretien"],
+    image: "",
+    logo: "",
+  },
+];

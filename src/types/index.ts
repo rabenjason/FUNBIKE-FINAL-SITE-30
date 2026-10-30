@@ -81,7 +81,17 @@ export interface Dealer {
   desc: string;
   lat: number;
   lon: number;
+  /**
+   * Lien Google Maps de l'itinéraire exact vers ce revendeur.
+   * Valeur gérée uniquement dans le tableau `REVENDEURS` de
+   * src/constants/content.ts — ne pas la dupliquer ailleurs.
+   */
+  googleMapsItineraire: string;
   services: string[];
+  /** Image du point de vente (URL) — laisser vide si aucun visuel. Gérée dans `REVENDEURS` (content.ts). */
+  image?: string;
+  /** Logo du revendeur (URL) — laisser vide si aucun logo. Géré dans `REVENDEURS` (content.ts). */
+  logo?: string;
 }
 
 export interface Banner {
