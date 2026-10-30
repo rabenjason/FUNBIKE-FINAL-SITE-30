@@ -18,18 +18,26 @@ type NewItem = {
 };
 
 // Motos favorites de l'accueil : sélectionnées par `homeFavorite: true`
-// dans BIKES (src/data.ts). Marque, famille, nom, description, image et
-// caractéristiques techniques proviennent de leur fiche BIKES — aucune
-// copie de moto n'existe ni ici, ni dans content.ts.
+// dans BIKES (src/data.ts). La carte garde le rendu court d'origine
+// (sur-titre, titre court, description courte, 3 points) : elle lit les
+// textes `homeCard` rangés dans la fiche de la moto — aucune copie de
+// moto n'existe ni ici, ni dans content.ts. Sans `homeCard`, la carte est
+// générée depuis la fiche (marque/famille, nom sans marque ni année,
+// première phrase de la description, 3 premières caractéristiques).
+type BikeItem = (typeof BIKES)[number];
+const shortName = (bike: BikeItem) =>
+  bike.name.replace(bike.brand, "").replace(/\s*\d{4}\s*$/, "").trim();
+const firstSentence = (text: string) => text.match(/^[^.]+\./)?.[0] ?? text;
+
 const favoriteItems: NewItem[] = BIKES.filter((bike) => bike.homeFavorite).map((bike) => ({
   id: bike.id,
   badge: bike.tag ?? "",
-  eyebrow: `${bike.brand} / ${bike.family}`,
-  title: bike.name,
-  desc: bike.desc,
+  eyebrow: bike.homeCard?.surTitre ?? `${bike.brand} / ${bike.family}`,
+  title: bike.homeCard?.titre ?? shortName(bike),
+  desc: bike.homeCard?.description ?? firstSentence(bike.desc),
   image: bike.image,
-  alt: bike.alt,
-  bullets: bike.specs.map((spec) => `${spec.label} : ${spec.value}`),
+  alt: bike.homeCard?.alt ?? bike.alt,
+  bullets: bike.homeCard?.points ?? bike.specs.slice(0, 3).map((spec) => spec.value),
   price: bike.price,
 }));
 

@@ -189,9 +189,11 @@ export const REVENDEURS: Dealer[] = [
  * Motos du catalogue.
  * Accueil — section « Nouveautés / Arrivages » : ajoutez `homeFavorite: true`
  * sur une moto pour l'y afficher (et retirez-le pour l'en enlever).
- * La carte de l'accueil reprend alors automatiquement brand, family, name,
- * desc, image, alt, price et specs de la fiche ci-dessous : ne recopiez
- * jamais ces informations ailleurs (ni dans content.ts, ni dans un composant).
+ * La carte reprend l'image et le prix de la fiche ci-dessous, ainsi que ses
+ * textes d'accueil `homeCard` (rendu court de la carte) : tout est rangé
+ * dans la fiche de la moto, ne recopiez jamais ces informations ailleurs
+ * (ni dans content.ts, ni dans un composant). Sans `homeCard`, la carte est
+ * générée automatiquement depuis brand, family, name, desc et specs.
  */
 export const BIKES: Bike[] = [
   {
@@ -202,6 +204,14 @@ export const BIKES: Bike[] = [
     price: "Sur devis",
     tag: "Nouveauté 2026",
     homeFavorite: true,
+    homeCard: {
+      surTitre: "Sherco / Enduro",
+      titre: "SEF 250 Factory",
+      description:
+        "La nouvelle génération Factory arrive chez Funbike : suspensions KYB, châssis affûté et moteur 250 cc.",
+      points: ["Suspensions KYB", "Deux cartographies", "Freinage Galfer"],
+      alt: "Sherco SEF 250 Factory 2026 sur piste",
+    },
     alt: "Sherco 250 SEF Factory 2026 – vue latérale",
     image:
       "https://funbike.mg/wp-content/uploads/2026/02/01-250-SEF-FACTORY-2026-3679x2456-1-1920x1080-1.jpg",
@@ -333,6 +343,14 @@ export const BIKES: Bike[] = [
     family: "Urbain",
     price: "Sur devis",
     homeFavorite: true,
+    homeCard: {
+      surTitre: "TVS / Urbain sportif",
+      titre: "Apache 200 4V",
+      description:
+        "Une sportive urbaine pensée pour le quotidien : moteur 200 cc, ABS et plusieurs modes de conduite.",
+      points: ["ABS", "Modes de conduite", "Tableau de bord digital"],
+      alt: "TVS Apache 200 4V",
+    },
     alt: "TVS 200 4V – bannière",
     image: "https://funbike.mg/wp-content/uploads/2026/02/Banner_200_4V.png",
     specs: [

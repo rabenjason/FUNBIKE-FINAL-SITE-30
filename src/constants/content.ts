@@ -120,8 +120,8 @@ export const content = {
       decouvrirPrefix: "Découvrir",
       // Nouveautés motos : NE PAS recopier de moto ici. Les motos affichées
       // dans cette section sont celles de BIKES (src/data.ts) portant
-      // `homeFavorite: true` — marque, famille, nom, description, image et
-      // caractéristiques techniques en proviennent automatiquement.
+      // `homeFavorite: true` — image, prix et textes de carte (`homeCard`)
+      // proviennent de leur fiche.
       // Cette liste ne sert qu'aux nouveautés qui ne sont pas des motos
       // (équipements, collections…).
       items: [
