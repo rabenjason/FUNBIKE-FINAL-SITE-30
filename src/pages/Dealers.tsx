@@ -14,27 +14,26 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import type { Dealer } from "../types";
-import { content, REVENDEURS } from "../constants/content";
+import { content } from "../constants/content";
+import { REVENDEURS } from "../data";
 
 export type { Dealer };
 
 // Toutes les informations des revendeurs (nom, ville, adresse, téléphone,
-// description, horaires, e-mail, services, coordonnées GPS, itinéraire
-// Google Maps, image, logo) sont centralisées dans le tableau
-// `REVENDEURS` de src/constants/content.ts, et les textes de la page dans
-// `content.revendeurs` du même fichier. Pour ajouter, supprimer ou
-// modifier un revendeur, ne modifiez que content.ts : cette page se
-// contente de récupérer les données et de les afficher.
+// description, horaires, e-mail, services, coordonnées GPS, image, logo)
+// sont centralisées dans le tableau
+// `REVENDEURS` de src/data.ts, et les textes fixes de la page dans
+// `content.revendeurs` (src/constants/content.ts). Pour ajouter,
+// supprimer ou modifier un revendeur, ne modifiez que data.ts : cette
+// page se contente de récupérer les données et de les afficher.
 
 const ZOOMS = [0.22, 0.12, 0.065, 0.035];
 const osmEmbed = (lat: number, lon: number, d: number) =>
   `https://www.openstreetmap.org/export/embed.html?bbox=${lon - d}%2C${lat - d}%2C${lon + d}%2C${lat + d}&layer=mapnik&marker=${lat}%2C${lon}`;
-// Le bouton « Itinéraire » utilise le lien Google Maps exact renseigné
-// dans content.ts. Lien laissé vide : il est régénéré depuis lat/lon.
+// Le bouton « Itinéraire » génère automatiquement son lien Google Maps
+// depuis les coordonnées GPS (lat/lon) du revendeur, dans data.ts.
 const directionsLink = (d: Dealer) =>
-  d.googleMapsItineraire.trim() !== ""
-    ? d.googleMapsItineraire
-    : `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lon}`;
+  `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lon}`;
 const telHref = (phone: string) => `tel:${phone.replace(/\s/g, "")}`;
 
 const ICON = "w-4 shrink-0 text-[#98741b] dark:text-[#ffd100]";

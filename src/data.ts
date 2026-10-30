@@ -1,22 +1,35 @@
 import type {
+  AccessoryBrand,
+  AccessoryBrandKey,
   AccessoryCategory,
   Bike,
   Brand,
   Category,
+  Dealer,
+  ExclusiveBrand,
+  FeaturedBike,
   Part,
   PartType,
 } from "./types";
 
 export type {
+  AccessoryBrand,
+  AccessoryBrandKey,
   AccessoryCategory,
   Bike,
   Brand,
   Category,
+  Dealer,
+  ExclusiveBrand,
+  FeaturedBike,
   Part,
   PartType,
 };
 
 export const LOGO = "https://funbike.mg/wp-content/themes/funbike/images/logo-funbike.png";
+
+/** Image de fond de la bannière Sherco de la page d'accueil. */
+export const SHERCO_BANNER_IMAGE = "https://www.sherco.com/wp-content/uploads/SHERCO50ccV2-32.jpg";
 
 export const BRANDS: Brand[] = [
   { name: "TVS", src: "https://funbike.mg/wp-content/uploads/2026/02/tvs-logo.png" },
@@ -31,6 +44,24 @@ export const BRANDS: Brand[] = [
     name: "Troy Lee Designs",
     src: "https://funbike.mg/wp-content/uploads/2026/02/sticker-troy-lee-designs-shield-logo-rouge-16cm.png",
   },
+];
+
+const brandLogo = (name: string) => BRANDS.find((brand) => brand.name === name)?.src ?? "";
+
+/** Marques distributeur exclusif mises en avant sur l'accueil (logos : voir BRANDS). */
+export const EXCLUSIVE_BRANDS: ExclusiveBrand[] = [
+  { key: "tvs", name: "TVS", tagline: "Robustesse garantie", image: brandLogo("TVS") },
+  { key: "fantic", name: "Fantic", tagline: "Performance italienne", image: brandLogo("Fantic") },
+  { key: "sherco", name: "Sherco", tagline: "ADN Compétition", image: brandLogo("Sherco") },
+];
+
+/** Marques d'équipements pilote (logos : voir BRANDS). */
+export const ACCESSORY_BRANDS: AccessoryBrand[] = [
+  { key: "tld", name: "Troy Lee Designs", logo: brandLogo("Troy Lee Designs"), alt: "Logo Troy Lee Designs" },
+  { key: "gaerne", name: "Gaerne", logo: brandLogo("Gaerne"), alt: "Logo Gaerne" },
+  { key: "mt", name: "MT Helmets", logo: brandLogo("MT Helmets"), alt: "Logo MT Helmets" },
+  { key: "tvs", name: "TVS", logo: brandLogo("TVS"), alt: "Logo TVS" },
+  { key: "bihr", name: "BIHR", logo: brandLogo("Bihr"), alt: "Logo Bihr" },
 ];
 
 export const CATEGORIES: Category[] = [
@@ -59,6 +90,98 @@ export const CATEGORIES: Category[] = [
     src: "https://funbike.mg/wp-content/themes/funbike/images/tenu.jpg",
     to: "equipements",
     brand: "tld",
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Revendeurs                                                         */
+/*  Source unique des données de la page Revendeurs : pour ajouter,    */
+/*  modifier ou supprimer un revendeur, n'intervenir qu'ici.           */
+/*  Les textes fixes de l'interface restent dans content.revendeurs    */
+/*  (src/constants/content.ts).                                        */
+/*                                                                     */
+/*  Champs : key (identifiant unique), name, city, kind, address,      */
+/*  hours, phone, email, desc, lat, lon, services, image et logo       */
+/*  ("" si aucun visuel).                                               */
+/*                                                                     */
+/*  GPS : lat/lon sont la seule source de coordonnées. Le lien         */
+/*  Google Maps du bouton « Itinéraire » est généré automatiquement    */
+/*  depuis lat/lon (voir directionsLink dans src/pages/Dealers.tsx) :  */
+/*  aucun lien d'itinéraire n'est à renseigner ici. Aucune coordonnée  */
+/*  inventée — valeurs du site actuel, marquées « À VÉRIFIER » dans     */
+/*  chaque bloc, à remplacer par les coordonnées GPS exactes de        */
+/*  chaque adresse.                                                    */
+/* ------------------------------------------------------------------ */
+
+// Verify contact details before publishing.
+export const REVENDEURS: Dealer[] = [
+  {
+    key: "antananarivo",
+    name: "Funbike Showroom",
+    city: "Antananarivo",
+    kind: "Showroom principal",
+    address: "Ambodivona, Antananarivo",
+    hours: "Lun – Sam · 8h30 – 17h30",
+    phone: "+261 34 00 000 00",
+    email: "contact@funbike.mg",
+    desc: "Le point de départ de votre prochaine aventure. Retrouvez les motos, les équipements et notre atelier à la même adresse.",
+    // À VÉRIFIER : coordonnées actuelles du site (quartier Ambodivona).
+    lat: -18.8792,
+    lon: 47.5079,
+    services: ["Motos", "Essais", "Atelier", "Pièces"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "toamasina",
+    name: "Funbike Est",
+    city: "Toamasina",
+    kind: "Point de vente",
+    address: "Boulevard Joffre, Toamasina",
+    hours: "Lun – Ven · 9h – 17h",
+    phone: "+261 34 11 111 11",
+    email: "est@funbike.mg",
+    desc: "Sur la côte est, une équipe à vos côtés pour choisir votre moto, vous équiper et assurer l'entretien courant.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Toamasina).
+    lat: -18.1492,
+    lon: 49.4023,
+    services: ["Motos", "Équipements", "Entretien"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "mahajanga",
+    name: "Funbike Nord-Ouest",
+    city: "Mahajanga",
+    kind: "Point de vente",
+    address: "Avenue de France, Mahajanga",
+    hours: "Lun – Ven · 9h – 17h",
+    phone: "+261 34 22 222 22",
+    email: "ouest@funbike.mg",
+    desc: "Votre relais Funbike dans le nord-ouest pour les motos, les essais et les commandes de pièces.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Mahajanga).
+    lat: -15.7167,
+    lon: 46.3167,
+    services: ["Motos", "Essais", "Pièces"],
+    image: "",
+    logo: "",
+  },
+  {
+    key: "fianarantsoa",
+    name: "Atelier Partenaire",
+    city: "Fianarantsoa",
+    kind: "Atelier partenaire",
+    address: "Route nationale 7, Fianarantsoa",
+    hours: "Lun – Sam · 8h – 16h",
+    phone: "+261 34 33 333 33",
+    email: "sud@funbike.mg",
+    desc: "Sur la RN7, un atelier partenaire pour l'entretien, les réparations et le montage de pièces.",
+    // À VÉRIFIER : coordonnées actuelles du site (ville de Fianarantsoa).
+    lat: -21.4527,
+    lon: 47.0857,
+    services: ["Atelier", "Pièces", "Entretien"],
+    image: "",
+    logo: "",
   },
 ];
 
@@ -266,6 +389,48 @@ export const BIKES: Bike[] = [
     desc: "Une série personnalisée par nos ateliers Funbike.",
   },
 ];
+
+/** Motos à la une du hero de l'accueil (images : voir BIKES). */
+export const FEATURED: FeaturedBike[] = [
+  {
+    id: "sherco-sef-250-factory-2026",
+    short: "SEF 250 Factory",
+    brand: "Sherco",
+    tag: "Enduro / Factory",
+    image: BIKES.find((bike) => bike.id === "sherco-sef-250-factory-2026")?.image ?? "",
+    alt: "Sherco SEF 250 Factory 2026 en action",
+  },
+  {
+    id: "sherco-sef-300-factory-2026",
+    short: "SEF 300 Factory",
+    brand: "Sherco",
+    tag: "Enduro / Factory",
+    image: BIKES.find((bike) => bike.id === "sherco-sef-300-factory-2026")?.image ?? "",
+    alt: "Sherco SEF 300 Factory 2026 en action",
+  },
+  {
+    id: "xx-125-2026",
+    short: "XX 125 Off-Road",
+    brand: "Fantic",
+    tag: "Cross / 125 cc",
+    image: BIKES.find((bike) => bike.id === "xx-125-2026")?.image ?? "",
+    alt: "Fantic XX 125 2026 sur piste",
+  },
+];
+
+/** Types de pièces proposés par le filtre de la page Pièces détachées. */
+export const SPARE_TYPES: ("Toutes" | PartType)[] = [
+  "Toutes",
+  "Pneus",
+  "Freinage",
+  "Transmission",
+  "Filtration",
+  "Pièces moteur",
+  "Consommables",
+];
+
+/** Marques proposées par le sélecteur de la page Pièces détachées. */
+export const SPARE_BRANDS = ["Toutes", "TVS", "Sherco", "Fantic", "BIHR"] as const;
 
 export const PARTS: Part[] = [
   {

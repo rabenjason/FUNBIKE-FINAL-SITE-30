@@ -1,4 +1,5 @@
 import { BIKES, TLD, TVS_PARTS, type Bike } from "../data";
+import { content } from "../constants/content";
 import { runRecommender, isSpecificModelRequest, detectBrandText, type NeedProfile } from "./recommender";
 
 /* ------------------------------------------------------------------ */
@@ -74,9 +75,9 @@ const byId = (id: string) => BIKES.find((b) => b.id === id);
 /* ------------------------------------------------------------------ */
 
 export const SHOP = {
-  phone: "+261 34 00 000 00",
-  email: "contact@funbike.mg",
-  city: "Antananarivo",
+  phone: content.site.telephoneAffiche,
+  email: content.site.email,
+  city: content.site.ville,
   hours: "du lundi au samedi, de 8h à 17h30",
 };
 

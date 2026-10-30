@@ -9,7 +9,7 @@ import {
   faMotorcycle,
   faShirt,
 } from "@fortawesome/free-solid-svg-icons";
-import { BIKES, BRANDS, CATEGORIES, TVS_ACCESSORIES, TVS_PARTS } from "../data";
+import { BIKES, BRANDS, CATEGORIES, FEATURED, TVS_ACCESSORIES, TVS_PARTS } from "../data";
 import { Section } from "../components/Layout";
 import { BikeCard, PartCard } from "../components/Cards";
 import { AccessoryBrandQuickLinks } from "../components/AccessoryBrands";
@@ -19,32 +19,6 @@ import NewArrivals from "../components/NewArrivals";
 import TypedText from "../components/TypedText";
 import { content } from "../constants/content";
 
-const FEATURED = [
-  {
-    id: "sherco-sef-250-factory-2026",
-    short: "SEF 250 Factory",
-    brand: "Sherco",
-    tag: "Enduro / Factory",
-    image: "https://funbike.mg/wp-content/uploads/2026/02/01-250-SEF-FACTORY-2026-3679x2456-1-1920x1080-1.jpg",
-    alt: "Sherco SEF 250 Factory 2026 en action",
-  },
-  {
-    id: "sherco-sef-300-factory-2026",
-    short: "SEF 300 Factory",
-    brand: "Sherco",
-    tag: "Enduro / Factory",
-    image: "https://funbike.mg/wp-content/uploads/2026/02/01-300-SEF-FACTORY-2026-3679x2456-1-1920x1080-1.jpg",
-    alt: "Sherco SEF 300 Factory 2026 en action",
-  },
-  {
-    id: "xx-125-2026",
-    short: "XX 125 Off-Road",
-    brand: "Fantic",
-    tag: "Cross / 125 cc",
-    image: "https://funbike.mg/wp-content/uploads/2026/02/7b566adac57a4b5dbfd74d4f768e6fdb.jpg",
-    alt: "Fantic XX 125 2026 sur piste",
-  },
-];
 
 const CATEGORY_ICONS = [faMotorcycle, faHelmetSafety, faGears, faShirt];
 
@@ -161,7 +135,7 @@ export default function Home({ go }: { go: (p: string, id?: string) => void }) {
                   </button>
                 ))}
               </div>
-              <span className="font-display text-[11px] font-semibold text-white/50 sm:text-xs">03</span>
+              <span className="font-display text-[11px] font-semibold text-white/50 sm:text-xs">{String(FEATURED.length).padStart(2, "0")}</span>
             </div>
           </div>
         </div>

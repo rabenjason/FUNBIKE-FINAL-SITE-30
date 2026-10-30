@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { motion, type Variants } from "framer-motion";
-import { BIKES } from "../data";
+import { BIKES, TLD } from "../data";
 import SmartImage from "./SmartImage";
 import { content } from "../constants/content";
 
@@ -25,10 +25,7 @@ const ITEMS: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
   eyebrow: item.surTitre,
   title: item.titre,
   desc: item.description,
-  image:
-    item.id === "tld"
-      ? "https://troyleedesigns.eu/cdn/shop/files/TLD_M26D2_GPPRO_PULSE_BLACK_01.jpg?v=1785777688&width=533"
-      : bike(item.id).image,
+  image: item.id === "tld" ? TLD[0].image : bike(item.id).image,
   alt: item.alt,
   bullets: [...item.points],
   price: item.prix,
@@ -130,7 +127,7 @@ export default function NewArrivals({ go }: { go: (p: string, id?: string) => vo
           onClick={() => go("catalogue")}
           className="mt-8 inline-flex items-center gap-2 border-b border-[#171816] pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#171816] transition hover:border-[#98741b] hover:text-[#98741b] dark:border-[#f2f0ea] dark:text-[#f2f0ea] dark:hover:text-[#ffd100]"
         >
-          Parcourir le catalogue <FontAwesomeIcon icon={faArrowRight} />
+          {content.accueil.nouveautes.boutonCatalogue} <FontAwesomeIcon icon={faArrowRight} />
         </button>
       </div>
     </section>

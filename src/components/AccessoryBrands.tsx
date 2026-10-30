@@ -1,33 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowUpRightFromSquare, type IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
-import { BRANDS } from "../data";
+import { ACCESSORY_BRANDS, type AccessoryBrand, type AccessoryBrandKey } from "../data";
 
-export type AccessoryBrandKey = "tld" | "gaerne" | "mt" | "tvs" | "bihr";
-
-export type AccessoryBrand = {
-  key: AccessoryBrandKey;
-  name: string;
-  logo?: string;
-  icon?: IconDefinition;
-  alt: string;
-};
-
-const logoOf = (name: string) => BRANDS.find((brand) => brand.name === name)?.src ?? "";
-
-/** Marques d'équipements pilote. */
-export const ACCESSORY_BRANDS: AccessoryBrand[] = [
-  {
-    key: "tld",
-    name: "Troy Lee Designs",
-    logo: "https://funbike.mg/wp-content/uploads/2026/02/sticker-troy-lee-designs-shield-logo-rouge-16cm.png",
-    alt: "Logo Troy Lee Designs",
-  },
-  { key: "gaerne", name: "Gaerne", logo: logoOf("Gaerne"), alt: "Logo Gaerne" },
-  { key: "mt", name: "MT Helmets", logo: logoOf("MT Helmets"), alt: "Logo MT Helmets" },
-  { key: "tvs", name: "TVS", logo: logoOf("TVS"), alt: "Logo TVS" },
-  { key: "bihr", name: "BIHR", logo: logoOf("Bihr"), alt: "Logo Bihr" },
-];
+export { ACCESSORY_BRANDS };
+export type { AccessoryBrand, AccessoryBrandKey };
 
 /** Brand mark in one fixed-size slot so every selector logo has the same footprint. */
 export function BrandVisual({ brand }: { brand: Pick<AccessoryBrand, "logo" | "icon"> }) {

@@ -1,34 +1,9 @@
 import { motion, type Variants } from "framer-motion";
 import SmartImage from "./SmartImage";
 import { content } from "../constants/content";
+import { EXCLUSIVE_BRANDS } from "../data";
 
-export type ExclusiveBrand = {
-  key: string;
-  name: string;
-  tagline: string;
-  image: string;
-};
-
-export const EXCLUSIVE_BRANDS: ExclusiveBrand[] = [
-  {
-    key: "tvs",
-    name: "TVS",
-    tagline: "Robustesse garantie",
-    image: "https://funbike.mg/wp-content/uploads/2026/02/tvs-logo.png",
-  },
-  {
-    key: "fantic",
-    name: "Fantic",
-    tagline: "Performance italienne",
-    image: "https://funbike.mg/wp-content/themes/funbike/images/fantic.png",
-  },
-  {
-    key: "sherco",
-    name: "Sherco",
-    tagline: "ADN Compétition",
-    image: "https://funbike.mg/wp-content/uploads/2026/02/sherco.png",
-  },
-];
+export type { ExclusiveBrand } from "../types";
 
 const list: Variants = {
   hidden: {},
