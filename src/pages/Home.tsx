@@ -10,7 +10,7 @@ import {
   faShirt,
 } from "@fortawesome/free-solid-svg-icons";
 import { BRANDS, CATEGORIES, FEATURED } from "../data";
-import { getHomeBikes, getHomeParts } from "../lib/products";
+import { useHomeBikes, useHomeParts } from "../lib/products";
 import { Section } from "../components/Layout";
 import { BikeCard, PartCard } from "../components/Cards";
 import { AccessoryBrandQuickLinks } from "../components/AccessoryBrands";
@@ -24,6 +24,8 @@ import { content } from "../constants/content";
 const CATEGORY_ICONS = [faMotorcycle, faHelmetSafety, faGears, faShirt];
 
 export default function Home({ go }: { go: (p: string, id?: string) => void }) {
+  const motosHomeBikes = useHomeBikes("motosHome");
+  const essentialsHomeParts = useHomeParts("essentialsHome");
   const [activeHero, setActiveHero] = useState(0);
   const current = FEATURED[activeHero];
 
@@ -183,7 +185,7 @@ export default function Home({ go }: { go: (p: string, id?: string) => void }) {
         number={content.accueil.motos.numero}
       >
         <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
-          {getHomeBikes("motosHome").map((model) => (
+          {motosHomeBikes.map((model) => (
             <BikeCard key={model.id} bike={model} go={go} />
           ))}
         </div>
@@ -213,7 +215,7 @@ export default function Home({ go }: { go: (p: string, id?: string) => void }) {
             <AccessoryBrandQuickLinks onSelect={(brand) => go("equipements", brand)} />
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 lg:grid-cols-4 lg:gap-x-5">
-            {getHomeParts("essentialsHome").map((part) => (
+            {essentialsHomeParts.map((part) => (
               <PartCard
                 key={part.id}
                 part={part}

@@ -23,6 +23,12 @@ function toSpecs(value) {
     .map((spec) => ({ label: spec.label, value: spec.value }));
 }
 
+function toMetadata(value) {
+  const parsed = parseJsonColumn(value, null);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
+  return parsed;
+}
+
 function toHomeCard(value) {
   const parsed = parseJsonColumn(value, null);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
@@ -62,6 +68,9 @@ export function rowToProduct(row) {
   const homeCard = toHomeCard(row.home_card);
   if (homeCard) product.homeCard = homeCard;
 
+  const metadata = toMetadata(row.metadata);
+  if (metadata && Object.keys(metadata).length > 0) product.metadata = metadata;
+
   return product;
 }
 
@@ -87,6 +96,7 @@ export function productToRowValues(product) {
     product.motosHomeOrder,
     product.essentialsHomeOrder,
     product.homeCard ? JSON.stringify(product.homeCard) : null,
+    product.metadata ? JSON.stringify(product.metadata) : null,
   ];
 }
 
@@ -110,4 +120,5 @@ export const PRODUCT_COLUMNS = [
   "motos_home_order",
   "essentials_home_order",
   "home_card",
+  "metadata",
 ];

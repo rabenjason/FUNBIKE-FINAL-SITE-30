@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faClock, faEnvelope, faLocationDot, faPhone } from "@fortawesome/free-solid-svg-icons";
 import { PageHeader } from "../components/Layout";
-import { PARTS, TVS_PARTS, SHERCO_PARTS, FANTIC_PARTS, TVS_ACCESSORIES } from "../data";
+import { useProductCatalog } from "../lib/products";
 import { content } from "../constants/content";
 
 const CONTACT_EMAIL = content.site.email;
@@ -15,10 +15,9 @@ const CONTACT_INFO = [
 ];
 
 export default function Contact({ inquiryId }: { inquiryId?: string }) {
+  const catalog = useProductCatalog();
   const [sent, setSent] = useState(false);
-  const accessory = [...TVS_ACCESSORIES, ...PARTS, ...TVS_PARTS, ...SHERCO_PARTS, ...FANTIC_PARTS].find(
-    (item) => item.id === inquiryId,
-  );
+  const accessory = catalog.parts.find((item) => item.id === inquiryId);
   const inquirySubject = accessory?.kind === "tvs" ? "tvs-accessoires" : accessory ? "pieces" : "";
 
   return (

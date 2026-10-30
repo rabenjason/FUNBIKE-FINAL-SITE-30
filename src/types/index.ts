@@ -153,6 +153,13 @@ export interface Product {
   essentialsHomeOrder: number | null;
   /** Textes courts de la carte « Nouveautés / Arrivages » (motos uniquement). */
   homeCard?: BikeHomeCard;
+  /**
+   * Informations specifiques deja presentes dans les fiches actuelles
+   * (par exemple tag moto, kind/category/compatibleBrand/partType/sourceUrl
+   * d'un accessoire). Elles sont stockees en JSON dans MySQL afin de relier
+   * le site a l'API sans perdre ni champ ni comportement.
+   */
+  metadata?: Record<string, unknown>;
 }
 
 export interface ExclusiveBrand {

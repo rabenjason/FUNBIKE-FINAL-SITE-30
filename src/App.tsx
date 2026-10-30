@@ -10,7 +10,8 @@ import Product from "./pages/Product";
 import AccessoryDetail from "./pages/AccessoryDetail";
 import Contact from "./pages/Contact";
 import Dealers from "./pages/Dealers";
-import { BIKES, FEATURED, findPart } from "./data";
+import { FEATURED } from "./data";
+import { useProductCatalog, type ProductCatalogSnapshot } from "./lib/products";
 import { content } from "./constants/content";
 
 const FIRST_HERO = FEATURED[0].image;
@@ -19,7 +20,7 @@ function sameRoute(a: Route, b: Route) {
   return a.page === b.page && (a.id ?? "") === (b.id ?? "");
 }
 
-function routeLabel(route: Route): string {
+function routeLabel(route: Route, catalog: ProductCatalogSnapshot): string {
   switch (route.page) {
     case "home":
       return content.navigation.accueil;
@@ -32,11 +33,11 @@ function routeLabel(route: Route): string {
     case "spares":
       return content.navigation.piecesDetachees;
     case "product": {
-      const bike = BIKES.find((b) => b.id === route.id);
+      const bike = catalog.bikes.find((b) => b.id === route.id);
       return bike ? bike.name : content.navigation.ficheMoto;
     }
     case "accessory": {
-      const part = findPart(route.id);
+      const part = catalog.parts.find((item) => item.id === route.id);
       return part ? part.name : content.navigation.ficheProduit;
     }
     case "revendeurs":
@@ -49,6 +50,7 @@ function routeLabel(route: Route): string {
 }
 
 export default function App() {
+  const catalog = useProductCatalog();
   const [dark, setDark] = useState(
     () => localStorage.getItem("fb-theme") !== "light",
   );
@@ -61,8 +63,8 @@ export default function App() {
   const canGoBack = history.length > 1;
   const previousRoute = canGoBack ? history[history.length - 2] : null;
   const backLabel = useMemo(
-    () => (previousRoute ? routeLabel(previousRoute) : content.navigation.accueil),
-    [previousRoute?.page, previousRoute?.id],
+    () => (previousRoute ? routeLabel(previousRoute, catalog) : content.navigation.accueil),
+    [previousRoute?.page, previousRoute?.id, catalog],
   );
 
   useEffect(() => {

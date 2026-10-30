@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { motion, type Variants } from "framer-motion";
 import { BIKES, TLD } from "../data";
-import { getHomeBikes } from "../lib/products";
+import { useHomeBikes } from "../lib/products";
 import SmartImage from "./SmartImage";
 import { content } from "../constants/content";
 
@@ -31,7 +31,7 @@ const shortName = (bike: BikeItem) =>
   bike.name.replace(bike.brand, "").replace(/\s*\d{4}\s*$/, "").trim();
 const firstSentence = (text: string) => text.match(/^[^.]+\./)?.[0] ?? text;
 
-const favoriteItems: NewItem[] = getHomeBikes("homeNew").map((bike) => ({
+const buildFavoriteItems = (bikes: BikeItem[]): NewItem[] => bikes.map((bike) => ({
   id: bike.id,
   badge: bike.tag ?? "",
   eyebrow: bike.homeCard?.surTitre ?? `${bike.brand} / ${bike.family}`,
@@ -57,7 +57,7 @@ const editorialItems: NewItem[] = content.accueil.nouveautes.items.map((item) =>
   price: item.prix,
 }));
 
-const ITEMS: NewItem[] = [...favoriteItems, ...editorialItems];
+
 
 const list: Variants = {
   hidden: {},
@@ -70,6 +70,9 @@ const itemMotion: Variants = {
 };
 
 export default function NewArrivals({ go }: { go: (p: string, id?: string) => void }) {
+  const favoriteBikes = useHomeBikes("homeNew");
+  const ITEMS: NewItem[] = [...buildFavoriteItems(favoriteBikes), ...editorialItems];
+
   return (
     <section className="bg-white py-10 dark:bg-[#141513] sm:py-12 lg:py-14">
       <div className="mx-auto w-full max-w-(--container-site) px-4 sm:px-7 lg:px-10">

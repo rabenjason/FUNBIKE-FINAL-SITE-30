@@ -1,32 +1,52 @@
 /**
  * Couche d'accès au catalogue produits FunBike.
  *
- * Modèle cible (futur backend Node.js + MySQL) : UNE seule table
- * `products`, un produit enregistré une seule fois, avec :
- * id, nom, marque, catégorie, description, image principale, images
- * supplémentaires, caractéristiques, tarif, statut (PUBLISHED / ARCHIVED)
- * et trois booléens indépendants de sélection pour l'accueil —
- * `homeNew` (Nouveautés / Arrivages), `motosHome` (section Motos),
- * `essentialsHome` (Atelier / Essentiels) — chacun avec son ordre
- * d'affichage (`homeNewOrder`, `motosHomeOrder`, `essentialsHomeOrder`).
+ * Le site est relié au serveur Node.js + MySQL :
  *
- * Aujourd'hui, il n'y a ni backend ni dashboard : ce module normalise les
- * collections existantes de src/data.ts (BIKES, ALL_PARTS) vers le type
- * `Product`, sans recopier aucune donnée, et expose les opérations
- * attendues par le frontend. Le jour du branchement de l'API REST, seul
- * le corps de ces fonctions changera (fetch vers GET/POST/PUT/DELETE
- * /api/products…) — les composants, qui ne connaissent que ces fonctions,
- * n'auront pas à être réécrits.
+ * 1. Au premier rendu, le catalogue local actuel sert d'affichage immédiat
+ *    et de secours si l'API est momentanément inaccessible.
+ * 2. Le hook `useProductCatalog()` charge ensuite les produits PUBLISHED
+ *    depuis `GET /api/products`. Dès que l'API répond, ses produits
+ *    remplacent l'affichage : les ajouts, modifications, publications,
+ *    archivages et suppressions faits par le CRUD deviennent visibles
+ *    sans reconstruire le site.
+ * 3. Pour remplir MySQL au départ, les produits locaux normalisés dans
+ *    `PRODUCTS` sont fournis au serveur dans
+ *    `server/database/seed-products.json` (`npm run db:seed`).
+ *
+ * En développement, Vite transmet `/api` au serveur local (voir
+ * `vite.config.ts`). En production, on peut définir `VITE_API_URL`
+ * avec l'adresse publique de l'API.
  */
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { ALL_PARTS, BIKES, partBrandLabel, partFamily } from "../data";
-import type { Bike, HomeSection, Part, Product, ProductStatus } from "../types";
+import type {
+  AccessoryCategory,
+  AccessoryKind,
+  Bike,
+  BikeFamily,
+  CompatibleBrand,
+  HomeSection,
+  Part,
+  PartType,
+  Product,
+  ProductStatus,
+} from "../types";
 
 /** Statut appliqué quand la fiche locale ne précise rien. */
 const DEFAULT_STATUS: ProductStatus = "PUBLISHED";
 
+const API_BASE_URL = (
+  (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_URL ?? ""
+).replace(/\/$/, "");
+
+function apiUrl(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
 /* ------------------------------------------------------------------ */
-/* Normalisation des collections existantes vers le modèle Product     */
-/* (dérivation pure : aucune donnée n'est recopiée)                    */
+/* Normalisation des collections locales vers le modèle Product        */
+/* Ces objets servent d'affichage initial, de secours et de seed MySQL. */
 /* ------------------------------------------------------------------ */
 
 function bikeToProduct(bike: Bike): Product {
@@ -50,10 +70,17 @@ function bikeToProduct(bike: Bike): Product {
     motosHomeOrder: bike.motosHomeOrder ?? null,
     essentialsHomeOrder: bike.essentialsHomeOrder ?? null,
     homeCard: bike.homeCard,
+    metadata: bike.tag ? { tag: bike.tag } : undefined,
   };
 }
 
 function partToProduct(part: Part): Product {
+  const metadata: Record<string, unknown> = { kind: part.kind };
+  if (part.category !== undefined) metadata.category = part.category;
+  if (part.compatibleBrand !== undefined) metadata.compatibleBrand = part.compatibleBrand;
+  if (part.partType !== undefined) metadata.partType = part.partType;
+  if (part.sourceUrl !== undefined) metadata.sourceUrl = part.sourceUrl;
+
   return {
     id: part.id,
     type: "part",
@@ -73,13 +100,14 @@ function partToProduct(part: Part): Product {
     homeNewOrder: part.homeNewOrder ?? null,
     motosHomeOrder: part.motosHomeOrder ?? null,
     essentialsHomeOrder: part.essentialsHomeOrder ?? null,
+    metadata,
   };
 }
 
 /**
- * Catalogue unique normalisé : une ligne par produit (motos + pièces +
- * équipements), dérivé des collections sources de src/data.ts.
- * Aucune fiche produit n'existe en double.
+ * Catalogue local normalisé : une ligne par produit.
+ * Il sert à générer le seed MySQL initial et d'affichage de secours ;
+ * quand l'API est disponible, c'est elle qui fait foi.
  */
 export const PRODUCTS: Product[] = [
   ...BIKES.map(bikeToProduct),
@@ -87,16 +115,281 @@ export const PRODUCTS: Product[] = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Magasin local en mémoire                                            */
-/* Simule la table `products` en attendant l'API : les fonctions CRUD  */
-/* ci-dessous y lisent/écrivent, avec les signatures du futur REST.    */
+/* Conversion des produits API vers les objets attendus par les cartes */
 /* ------------------------------------------------------------------ */
 
-let store: Product[] = [...PRODUCTS];
+const BIKE_FAMILIES: BikeFamily[] = ["Off-road", "Urbain", "3 roues"];
+const ACCESSORY_CATEGORIES: AccessoryCategory[] = ["Casques", "Blousons", "Gants", "Bottes", "Pièces"];
+const ACCESSORY_KINDS: AccessoryKind[] = ["piece", "tld", "gaerne", "mt", "tvs"];
+const COMPATIBLE_BRANDS: CompatibleBrand[] = ["Universal", "TVS", "Sherco", "Fantic"];
+const PART_TYPES: PartType[] = [
+  "Pneus",
+  "Freinage",
+  "Transmission",
+  "Filtration",
+  "Pièces moteur",
+  "Consommables",
+];
 
-/** Fiches d'origine, pour alimenter les cartes existantes (BikeCard, PartCard). */
-const bikeById = new Map(BIKES.map((bike) => [bike.id, bike]));
-const partById = new Map(ALL_PARTS.map((part) => [part.id, part]));
+function metadataString(product: Product, key: string): string | undefined {
+  const value = product.metadata?.[key];
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function productManagement(product: Product) {
+  return {
+    status: product.status,
+    homeNew: product.homeNew,
+    motosHome: product.motosHome,
+    essentialsHome: product.essentialsHome,
+    homeNewOrder: product.homeNewOrder ?? undefined,
+    motosHomeOrder: product.motosHomeOrder ?? undefined,
+    essentialsHomeOrder: product.essentialsHomeOrder ?? undefined,
+  };
+}
+
+export function productToBike(product: Product): Bike | undefined {
+  if (product.type !== "bike") return undefined;
+
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    family: BIKE_FAMILIES.includes(product.category as BikeFamily)
+      ? (product.category as BikeFamily)
+      : "Urbain",
+    price: product.price,
+    tag: metadataString(product, "tag"),
+    alt: product.alt,
+    image: product.image,
+    gallery: product.images.length > 0 ? product.images : [product.image],
+    specs: product.specs,
+    desc: product.description,
+    homeCard: product.homeCard,
+    ...productManagement(product),
+  };
+}
+
+function inferPartKind(product: Product): AccessoryKind {
+  if (product.brand === "Troy Lee Designs") return "tld";
+  if (product.brand === "Gaerne") return "gaerne";
+  if (product.brand === "MT Helmets") return "mt";
+  if (product.brand === "TVS" && ACCESSORY_CATEGORIES.includes(product.category as AccessoryCategory)) {
+    return "tvs";
+  }
+  return "piece";
+}
+
+export function productToPart(product: Product): Part | undefined {
+  if (product.type !== "part") return undefined;
+
+  const kindValue = metadataString(product, "kind");
+  const categoryValue = metadataString(product, "category") ?? product.category;
+  const compatibleValue = metadataString(product, "compatibleBrand");
+  const partTypeValue = metadataString(product, "partType");
+
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    kind: ACCESSORY_KINDS.includes(kindValue as AccessoryKind)
+      ? (kindValue as AccessoryKind)
+      : inferPartKind(product),
+    category: ACCESSORY_CATEGORIES.includes(categoryValue as AccessoryCategory)
+      ? (categoryValue as AccessoryCategory)
+      : undefined,
+    compatibleBrand: COMPATIBLE_BRANDS.includes(compatibleValue as CompatibleBrand)
+      ? (compatibleValue as CompatibleBrand)
+      : undefined,
+    partType: PART_TYPES.includes(partTypeValue as PartType) ? (partTypeValue as PartType) : undefined,
+    sourceUrl: metadataString(product, "sourceUrl"),
+    gallery: product.images.length > 0 ? product.images : [product.image],
+    desc: product.description || undefined,
+    specs: product.specs,
+    ...productManagement(product),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Magasin du catalogue : local au départ, API dès qu'elle répond      */
+/* ------------------------------------------------------------------ */
+
+export type ProductCatalogSource = "local" | "api";
+
+export interface ProductCatalogSnapshot {
+  products: Product[];
+  bikes: Bike[];
+  parts: Part[];
+  source: ProductCatalogSource;
+  loading: boolean;
+  error: string | null;
+}
+
+function buildSnapshot(
+  products: Product[],
+  source: ProductCatalogSource,
+  loading: boolean,
+  error: string | null,
+): ProductCatalogSnapshot {
+  return {
+    products,
+    bikes: products.flatMap((product) => {
+      const bike = productToBike(product);
+      return bike ? [bike] : [];
+    }),
+    parts: products.flatMap((product) => {
+      const part = productToPart(product);
+      return part ? [part] : [];
+    }),
+    source,
+    loading,
+    error,
+  };
+}
+
+let catalogSnapshot = buildSnapshot(PRODUCTS, "local", false, null);
+const listeners = new Set<() => void>();
+let loadPromise: Promise<ProductCatalogSnapshot> | null = null;
+
+const localOrder = new Map(PRODUCTS.map((product, index) => [product.id, index]));
+
+function sortLikeCurrentSite(products: Product[]): Product[] {
+  return [...products].sort((a, b) => {
+    const orderA = localOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const orderB = localOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.name.localeCompare(b.name, "fr");
+  });
+}
+
+function notifyCatalogChanged() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribeToCatalog(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function getProductCatalogSnapshot(): ProductCatalogSnapshot {
+  return catalogSnapshot;
+}
+
+export function getCatalogBikes(): Bike[] {
+  return catalogSnapshot.bikes;
+}
+
+export function getCatalogParts(): Part[] {
+  return catalogSnapshot.parts;
+}
+
+function replaceCatalog(products: Product[], source: ProductCatalogSource, error: string | null = null) {
+  catalogSnapshot = buildSnapshot(products, source, false, error);
+  notifyCatalogChanged();
+  return catalogSnapshot;
+}
+
+function upsertCatalogProduct(product: Product) {
+  if (product.status !== DEFAULT_STATUS) {
+    replaceCatalog(
+      catalogSnapshot.products.filter((item) => item.id !== product.id),
+      catalogSnapshot.source,
+    );
+    return;
+  }
+
+  const exists = catalogSnapshot.products.some((item) => item.id === product.id);
+  const products = exists
+    ? catalogSnapshot.products.map((item) => (item.id === product.id ? product : item))
+    : sortLikeCurrentSite([...catalogSnapshot.products, product]);
+  replaceCatalog(products, catalogSnapshot.source);
+}
+
+function removeCatalogProduct(id: string) {
+  replaceCatalog(
+    catalogSnapshot.products.filter((product) => product.id !== id),
+    catalogSnapshot.source,
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Chargement depuis l'API REST                                        */
+/* ------------------------------------------------------------------ */
+
+type ApiEnvelope<T> = {
+  success: boolean;
+  data: T;
+  error?: { message?: string };
+};
+
+async function readApiEnvelope<T>(response: Response): Promise<ApiEnvelope<T>> {
+  const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
+  if (!response.ok || !payload?.success) {
+    throw new Error(payload?.error?.message ?? `API indisponible (${response.status}).`);
+  }
+  return payload;
+}
+
+/** Charge (ou recharge) le catalogue publié depuis le serveur. */
+export function loadProductCatalog(force = false): Promise<ProductCatalogSnapshot> {
+  if (loadPromise && !force) return loadPromise;
+  if (catalogSnapshot.source === "api" && !force) return Promise.resolve(catalogSnapshot);
+
+  catalogSnapshot = { ...catalogSnapshot, loading: true, error: null };
+  notifyCatalogChanged();
+
+  loadPromise = (async () => {
+    try {
+      const response = await fetch(apiUrl("/api/products?status=PUBLISHED&limit=500"), {
+        headers: { Accept: "application/json" },
+      });
+      const payload = await readApiEnvelope<Product[]>(response);
+      if (!Array.isArray(payload.data)) throw new Error("Réponse produits invalide.");
+
+      return replaceCatalog(sortLikeCurrentSite(payload.data), "api");
+    } catch (error) {
+      catalogSnapshot = {
+        ...catalogSnapshot,
+        loading: false,
+        error: error instanceof Error ? error.message : "API indisponible.",
+      };
+      notifyCatalogChanged();
+      return catalogSnapshot;
+    } finally {
+      loadPromise = null;
+    }
+  })();
+
+  return loadPromise;
+}
+
+export function refreshProductCatalog(): Promise<ProductCatalogSnapshot> {
+  return loadProductCatalog(true);
+}
+
+/**
+ * Catalogue produits du site. Le premier rendu utilise les données
+ * locales actuelles ; dès que l'API répond, l'affichage bascule sur
+ * les produits stockés dans MySQL.
+ */
+export function useProductCatalog(): ProductCatalogSnapshot {
+  const snapshot = useSyncExternalStore(
+    subscribeToCatalog,
+    getProductCatalogSnapshot,
+    getProductCatalogSnapshot,
+  );
+
+  useEffect(() => {
+    void loadProductCatalog();
+  }, []);
+
+  return snapshot;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sélecteurs utilisés par les pages et composants                     */
+/* ------------------------------------------------------------------ */
 
 function isSelected(product: Product, section: HomeSection): boolean {
   if (section === "homeNew") return product.homeNew;
@@ -114,13 +407,50 @@ function orderOf(product: Product, section: HomeSection): number {
   return order ?? Number.MAX_SAFE_INTEGER;
 }
 
-/* ------------------------------------------------------------------ */
-/* Lecture (futur GET /api/products…)                                  */
-/* ------------------------------------------------------------------ */
+export function getHomeProducts(
+  section: HomeSection,
+  products: Product[] = catalogSnapshot.products,
+): Product[] {
+  return products
+    .filter((product) => product.status === DEFAULT_STATUS && isSelected(product, section))
+    .sort((a, b) => orderOf(a, section) - orderOf(b, section));
+}
 
-/** Tous les produits, filtrables par statut et/ou section d'accueil. */
+export function getHomeBikes(
+  section: "homeNew" | "motosHome",
+  snapshot: ProductCatalogSnapshot = catalogSnapshot,
+): Bike[] {
+  const bikesById = new Map(snapshot.bikes.map((bike) => [bike.id, bike]));
+  return getHomeProducts(section, snapshot.products).flatMap((product) => {
+    const bike = bikesById.get(product.id);
+    return bike ? [bike] : [];
+  });
+}
+
+export function getHomeParts(
+  section: "essentialsHome",
+  snapshot: ProductCatalogSnapshot = catalogSnapshot,
+): Part[] {
+  const partsById = new Map(snapshot.parts.map((part) => [part.id, part]));
+  return getHomeProducts(section, snapshot.products).flatMap((product) => {
+    const part = partsById.get(product.id);
+    return part ? [part] : [];
+  });
+}
+
+export function useHomeBikes(section: "homeNew" | "motosHome"): Bike[] {
+  const snapshot = useProductCatalog();
+  return useMemo(() => getHomeBikes(section, snapshot), [section, snapshot]);
+}
+
+export function useHomeParts(section: "essentialsHome"): Part[] {
+  const snapshot = useProductCatalog();
+  return useMemo(() => getHomeParts(section, snapshot), [section, snapshot]);
+}
+
+/** Tous les produits du catalogue courant, filtrables par statut et/ou section. */
 export function listProducts(options?: { status?: ProductStatus; section?: HomeSection }): Product[] {
-  let result = [...store];
+  let result = [...catalogSnapshot.products];
   if (options?.status) result = result.filter((product) => product.status === options.status);
   if (options?.section) {
     const section = options.section;
@@ -131,69 +461,89 @@ export function listProducts(options?: { status?: ProductStatus; section?: HomeS
   return result;
 }
 
-/** Un produit par son id (futur GET /api/products/:id). */
+/** Un produit par son id, dans le catalogue courant. */
 export function getProductById(id?: string): Product | undefined {
   if (!id) return undefined;
-  return store.find((product) => product.id === id);
-}
-
-/**
- * Produits d'une section de l'accueil : uniquement les PUBLISHED dont le
- * booléen de la section est `true`, triés par l'ordre de la section.
- * C'est la seule règle d'alimentation des sections Nouveautés, Motos et
- * Atelier / Essentiels.
- */
-export function getHomeProducts(section: HomeSection): Product[] {
-  return store
-    .filter((product) => product.status === DEFAULT_STATUS && isSelected(product, section))
-    .sort((a, b) => orderOf(a, section) - orderOf(b, section));
-}
-
-/** Motos d'une section d'accueil, prêtes pour les cartes existantes. */
-export function getHomeBikes(section: "homeNew" | "motosHome"): Bike[] {
-  return getHomeProducts(section).flatMap((product) => {
-    const bike = bikeById.get(product.id);
-    return bike ? [bike] : [];
-  });
-}
-
-/** Pièces / équipements d'une section d'accueil, prêts pour les cartes existantes. */
-export function getHomeParts(section: "essentialsHome"): Part[] {
-  return getHomeProducts(section).flatMap((product) => {
-    const part = partById.get(product.id);
-    return part ? [part] : [];
-  });
+  return catalogSnapshot.products.find((product) => product.id === id);
 }
 
 /* ------------------------------------------------------------------ */
-/* Écriture (futurs POST / PUT / DELETE /api/products…)                */
-/* Préparé pour le CRUD du futur dashboard : aucun écran ne l'utilise  */
-/* encore, les fonctions opèrent sur le magasin local en mémoire.     */
+/* CRUD via l'API REST (jeton du futur dashboard ou ADMIN_API_KEY)     */
 /* ------------------------------------------------------------------ */
 
-/** Ajouter un produit (futur POST /api/products). */
-export function createProduct(input: Product): Product {
-  store = [...store, input];
-  return input;
+export interface ProductRequestOptions {
+  accessToken?: string;
+  apiKey?: string;
 }
 
-/** Modifier un produit (futur PUT /api/products/:id). */
-export function updateProduct(id: string, patch: Partial<Product>): Product | undefined {
-  const current = getProductById(id);
-  if (!current) return undefined;
-  const updated = { ...current, ...patch, id: current.id };
-  store = store.map((product) => (product.id === id ? updated : product));
-  return updated;
+async function productRequest<T>(
+  path: string,
+  init: RequestInit,
+  options: ProductRequestOptions = {},
+): Promise<T> {
+  const headers = new Headers(init.headers);
+  headers.set("Accept", "application/json");
+  if (init.body) headers.set("Content-Type", "application/json");
+  if (options.accessToken) headers.set("Authorization", `Bearer ${options.accessToken}`);
+  if (options.apiKey) headers.set("x-api-key", options.apiKey);
+
+  const response = await fetch(apiUrl(path), { ...init, headers });
+  if (response.status === 204) return undefined as T;
+
+  const payload = await readApiEnvelope<T>(response);
+  return payload.data;
 }
 
-/** Supprimer un produit (futur DELETE /api/products/:id). */
-export function deleteProduct(id: string): boolean {
-  const before = store.length;
-  store = store.filter((product) => product.id !== id);
-  return store.length !== before;
+/** Ajouter un produit dans MySQL via POST /api/products. */
+export async function createProduct(
+  input: Product,
+  options: ProductRequestOptions = {},
+): Promise<Product> {
+  const product = await productRequest<Product>(
+    "/api/products",
+    { method: "POST", body: JSON.stringify(input) },
+    options,
+  );
+  upsertCatalogProduct(product);
+  return product;
 }
 
-/** Publier ou archiver un produit (futur PATCH /api/products/:id avec { status }). */
-export function setProductStatus(id: string, status: ProductStatus): Product | undefined {
-  return updateProduct(id, { status });
+/** Modifier un produit via PATCH /api/products/:id. */
+export async function updateProduct(
+  id: string,
+  patch: Partial<Product>,
+  options: ProductRequestOptions = {},
+): Promise<Product> {
+  const product = await productRequest<Product>(
+    `/api/products/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: JSON.stringify(patch) },
+    options,
+  );
+  upsertCatalogProduct(product);
+  return product;
+}
+
+/** Supprimer un produit via DELETE /api/products/:id. */
+export async function deleteProduct(
+  id: string,
+  options: ProductRequestOptions = {},
+): Promise<boolean> {
+  await productRequest<void>(`/api/products/${encodeURIComponent(id)}`, { method: "DELETE" }, options);
+  removeCatalogProduct(id);
+  return true;
+}
+
+/** Publier ou archiver via PATCH /api/products/:id/status. */
+export async function setProductStatus(
+  id: string,
+  status: ProductStatus,
+  options: ProductRequestOptions = {},
+): Promise<Product> {
+  const product = await productRequest<Product>(
+    `/api/products/${encodeURIComponent(id)}/status`,
+    { method: "PATCH", body: JSON.stringify({ status }) },
+    options,
+  );
+  upsertCatalogProduct(product);
+  return product;
 }

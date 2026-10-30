@@ -16,4 +16,24 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  // Le site appelle l'API FunBike en relatif (/api/...). En developpement,
+  // Vite transmet ces appels au serveur Node.js local (server/, port 3001).
+  server: {
+    // Apercu heberge (Arena) : autorise les noms d'hote de previsualisation.
+    allowedHosts: [".e2b.app"],
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
+  preview: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
 });

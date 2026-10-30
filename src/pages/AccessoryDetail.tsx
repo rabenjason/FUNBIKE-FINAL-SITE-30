@@ -8,7 +8,8 @@ import {
   faMagnifyingGlassPlus,
   faPhone,
 } from "@fortawesome/free-solid-svg-icons";
-import { ALL_PARTS, findPart, partBrandLabel, partFamily, type Part } from "../data";
+import { partBrandLabel, partFamily, type Part } from "../data";
+import { useProductCatalog } from "../lib/products";
 import { content } from "../constants/content";
 import { Section, type Route } from "../components/Layout";
 import { PartCard } from "../components/Cards";
@@ -54,7 +55,8 @@ function autoSpecs(part: Part): { label: string; value: string }[] {
 }
 
 export default function AccessoryDetail({ id, go, back, backLabel }: Props) {
-  const part = findPart(id) ?? ALL_PARTS[0];
+  const catalog = useProductCatalog();
+  const part = catalog.parts.find((item) => item.id === id) ?? catalog.parts[0];
   const gallery = part.gallery && part.gallery.length ? part.gallery : [part.image];
   const [active, setActive] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -62,7 +64,7 @@ export default function AccessoryDetail({ id, go, back, backLabel }: Props) {
   const desc = autoDesc(part);
   const eyebrow = `${partBrandLabel(part)} / ${partFamily(part)}`.toUpperCase();
 
-  const related = ALL_PARTS.filter((p) => {
+  const related = catalog.parts.filter((p) => {
     if (p.id === part.id) return false;
     if (p.kind === part.kind) return true;
     if (part.kind === "piece" && p.kind === "piece" && p.compatibleBrand === part.compatibleBrand) return true;

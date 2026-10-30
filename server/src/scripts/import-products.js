@@ -8,20 +8,16 @@ import { validateProductPayload } from "../products/product.validation.js";
  * Importe ou met a jour des produits depuis un fichier JSON.
  *
  * Usage :
+ *   npm run db:seed
  *   npm run db:import -- ./data/products.json
  *
  * Le fichier peut contenir directement un tableau de produits, ou un objet
  * { "data": [...] }. Chaque produit doit suivre le type Product du frontend.
- * Aucune donnee produit n'est fournie avec le serveur : cet import sert a
- * remplir MySQL a partir d'un export du catalogue, sans copier les fiches
- * dans le code.
+ * Sans argument, le script importe server/database/seed-products.json :
+ * les produits actuels du site, a stocker dans MySQL pour commencer.
  */
 
-const fileArgument = process.argv[2];
-if (!fileArgument) {
-  console.error("Usage : npm run db:import -- ./data/products.json");
-  process.exit(1);
-}
+const fileArgument = process.argv[2] ?? "database/seed-products.json";
 
 const filePath = path.resolve(process.cwd(), fileArgument);
 const rawContent = await fs.readFile(filePath, "utf8");

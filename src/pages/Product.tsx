@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowRight, faCheck, faMagnifyingGlassPlus, faPhone } from "@fortawesome/free-solid-svg-icons";
-import { BIKES } from "../data";
+import { useProductCatalog } from "../lib/products";
 import { content } from "../constants/content";
 import { Section } from "../components/Layout";
 import { BikeCard } from "../components/Cards";
@@ -21,11 +21,12 @@ export default function Product({
   canGoBack?: boolean;
   backLabel?: string;
 }) {
-  const bike = BIKES.find((item) => item.id === id) ?? BIKES[0];
+  const catalog = useProductCatalog();
+  const bike = catalog.bikes.find((item) => item.id === id) ?? catalog.bikes[0];
   const gallery = bike.gallery ?? [bike.image];
   const [active, setActive] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const related = BIKES.filter((item) => item.id !== bike.id && item.family === bike.family).slice(0, 4);
+  const related = catalog.bikes.filter((item) => item.id !== bike.id && item.family === bike.family).slice(0, 4);
 
   return (
     <div className="overflow-x-hidden bg-white dark:bg-[#141513]">
