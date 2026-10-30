@@ -27,6 +27,21 @@ export interface BikeSpec {
 
 export type BikeFamily = "Off-road" | "Urbain" | "3 roues";
 
+/**
+ * Présentation d'une moto dans la section « Nouveautés / Arrivages » de
+ * l'accueil (sur-titre, titre court, description courte, points forts).
+ * Elle fait partie de la fiche de la moto dans `BIKES` (src/data.ts) :
+ * ce n'est pas une copie de la moto, juste son habillage pour la carte
+ * d'accueil, conservé au même endroit que ses autres informations.
+ */
+export interface BikeHomeCard {
+  surTitre: string;
+  titre: string;
+  description: string;
+  points: string[];
+  alt: string;
+}
+
 export interface Bike {
   id: string;
   name: string;
@@ -39,6 +54,19 @@ export interface Bike {
   gallery?: string[];
   specs: BikeSpec[];
   desc: string;
+  /**
+   * Moto favorite de l'accueil : si `true`, la moto est affichée dans la
+   * section « Nouveautés / Arrivages ». À gérer uniquement dans `BIKES`
+   * (src/data.ts).
+   */
+  homeFavorite?: boolean;
+  /**
+   * Textes de la carte d'accueil (rendu court : sur-titre, titre court,
+   * description courte, 3 points forts). Rangés dans cette fiche, jamais
+   * dans content.ts. Si absent, la carte est générée depuis `brand`,
+   * `family`, `name`, `desc` et `specs` de la fiche.
+   */
+  homeCard?: BikeHomeCard;
 }
 
 /** Alias explicite pour les futurs usages métier. */

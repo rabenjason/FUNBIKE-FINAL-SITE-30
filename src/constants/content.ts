@@ -118,29 +118,13 @@ export const content = {
       tarif: "Tarif",
       boutonCatalogue: "Parcourir le catalogue",
       decouvrirPrefix: "Découvrir",
+      // Nouveautés motos : NE PAS recopier de moto ici. Les motos affichées
+      // dans cette section sont celles de BIKES (src/data.ts) portant
+      // `homeFavorite: true` — image, prix et textes de carte (`homeCard`)
+      // proviennent de leur fiche.
+      // Cette liste ne sert qu'aux nouveautés qui ne sont pas des motos
+      // (équipements, collections…).
       items: [
-        {
-          id: "sherco-sef-250-factory-2026",
-          badge: "Nouveauté 2026",
-          surTitre: "Sherco / Enduro",
-          titre: "SEF 250 Factory",
-          description:
-            "La nouvelle génération Factory arrive chez Funbike : suspensions KYB, châssis affûté et moteur 250 cc.",
-          alt: "Sherco SEF 250 Factory 2026 sur piste",
-          points: ["Suspensions KYB", "Deux cartographies", "Freinage Galfer"],
-          prix: "Sur devis",
-        },
-        {
-          id: "tvs-200-4v",
-          badge: "Arrivage",
-          surTitre: "TVS / Urbain sportif",
-          titre: "Apache 200 4V",
-          description:
-            "Une sportive urbaine pensée pour le quotidien : moteur 200 cc, ABS et plusieurs modes de conduite.",
-          alt: "TVS Apache 200 4V",
-          points: ["ABS", "Modes de conduite", "Tableau de bord digital"],
-          prix: "Sur devis",
-        },
         {
           id: "tld",
           badge: "Collection 2026",

@@ -17,19 +17,45 @@ type NewItem = {
   price: string;
 };
 
-const bike = (id: string) => BIKES.find((item) => item.id === id)!;
+// Motos favorites de l'accueil : sélectionnées par `homeFavorite: true`
+// dans BIKES (src/data.ts). La carte garde le rendu court d'origine
+// (sur-titre, titre court, description courte, 3 points) : elle lit les
+// textes `homeCard` rangés dans la fiche de la moto — aucune copie de
+// moto n'existe ni ici, ni dans content.ts. Sans `homeCard`, la carte est
+// générée depuis la fiche (marque/famille, nom sans marque ni année,
+// première phrase de la description, 3 premières caractéristiques).
+type BikeItem = (typeof BIKES)[number];
+const shortName = (bike: BikeItem) =>
+  bike.name.replace(bike.brand, "").replace(/\s*\d{4}\s*$/, "").trim();
+const firstSentence = (text: string) => text.match(/^[^.]+\./)?.[0] ?? text;
 
-const ITEMS: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
+const favoriteItems: NewItem[] = BIKES.filter((bike) => bike.homeFavorite).map((bike) => ({
+  id: bike.id,
+  badge: bike.tag ?? "",
+  eyebrow: bike.homeCard?.surTitre ?? `${bike.brand} / ${bike.family}`,
+  title: bike.homeCard?.titre ?? shortName(bike),
+  desc: bike.homeCard?.description ?? firstSentence(bike.desc),
+  image: bike.image,
+  alt: bike.homeCard?.alt ?? bike.alt,
+  bullets: bike.homeCard?.points ?? bike.specs.slice(0, 3).map((spec) => spec.value),
+  price: bike.price,
+}));
+
+// Nouveautés qui ne sont pas des motos (équipements, collections…) :
+// textes éditoriaux de content.ts, image depuis leur gamme dans data.ts.
+const editorialItems: NewItem[] = content.accueil.nouveautes.items.map((item) => ({
   id: item.id,
   badge: item.badge,
   eyebrow: item.surTitre,
   title: item.titre,
   desc: item.description,
-  image: item.id === "tld" ? TLD[0].image : bike(item.id).image,
+  image: item.id === "tld" ? TLD[0].image : (BIKES.find((bike) => bike.id === item.id)?.image ?? ""),
   alt: item.alt,
   bullets: [...item.points],
   price: item.prix,
 }));
+
+const ITEMS: NewItem[] = [...favoriteItems, ...editorialItems];
 
 const list: Variants = {
   hidden: {},
