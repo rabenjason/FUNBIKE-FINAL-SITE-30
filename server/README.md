@@ -54,6 +54,14 @@ Créez la base et les tables `products`, `users` et `user_sessions` :
 npm run db:migrate
 ```
 
+Chargez ensuite dans MySQL les produits actuels du site (fichier `server/database/seed-products.json` : les 60 produits aujourd'hui affiches, motos, pieces et equipements) :
+
+```bash
+npm run db:seed
+```
+
+L'import est idempotent : relancer la commande met a jour les produits existants par `id`, sans creer de doublons.
+
 Creez ensuite le premier compte ADMIN avec la commande interactive dediee. Le mot de passe est saisi sans etre affiche, il n'existe pas dans le code, et la commande refuse de continuer si un ADMIN existe deja :
 
 ```bash
@@ -71,15 +79,17 @@ Par défaut, le serveur écoute sur `http://localhost:3001`.
 - Vérification simple : `GET /health`
 - Vérification MySQL : `GET /health/db`
 
-## Importer les produits actuels
+## Importer ou recharger les produits du site
 
-Aucune fiche produit n'est copiée dans le code du serveur. Pour remplir MySQL à partir d'un export JSON du catalogue (tableau de produits au format `Product`, ou objet `{ "data": [...] }`) :
+Le demarrage recommande est `npm run db:seed` : il charge `server/database/seed-products.json`, c'est-a-dire les produits actuels du site, dans la table `products`.
+
+Pour importer un autre export JSON du catalogue (tableau de produits au format `Product`, ou objet `{ "data": [...] }`) :
 
 ```bash
 npm run db:import -- ./data/products.json
 ```
 
-L'import ajoute les nouveaux produits et met à jour ceux dont l'`id` existe déjà, dans une transaction.
+L'import ajoute les nouveaux produits et met à jour ceux dont l'`id` existe déjà, dans une transaction. Les champs specifiques des fiches actuelles (tag moto, type d'accessoire, compatibilite, type de piece, source) sont conserves dans la colonne JSON `metadata`, afin que le site relie a l'API garde exactement les memes affichages et filtres.
 
 ## API
 
@@ -219,6 +229,15 @@ server/
 └── package.json
 ```
 
-## Branchement futur du frontend
+## Branchement du site
 
-Le frontend n'appelle pas encore cette API : il continue d'utiliser ses données locales via `src/lib/products.ts`. Le jour du branchement, seules les fonctions de ce fichier passeront en `fetch` vers `/api/products` et `/api/home/...` — les composants n'auront pas à changer, et ce serveur n'aura pas besoin d'être modifié.
+Le site est relie a cette API via `src/lib/products.ts` :
+
+- au premier rendu, les produits locaux actuels s'affichent immediatement ;
+- le site charge ensuite `GET /api/products?status=PUBLISHED` et, des que le serveur repond, les produits stockes dans MySQL remplacent l'affichage dans l'accueil, le catalogue, les fiches motos et accessoires, le contact et le chat ;
+- si l'API est arretee ou la base vide/non migree, le site garde l'affichage local de secours au lieu de se retrouver vide ;
+- un produit cree, modifie, publie, archive ou supprime par le CRUD apparait donc dans le site apres rechargement, sans reconstruire le frontend.
+
+En developpement, lancez le serveur (`npm start`, port 3001) puis le site (`npm run dev` a la racine) : Vite transmet automatiquement les appels `/api` au serveur local.
+
+En production, si l'API est sur un autre domaine, definissez `VITE_API_URL=https://api.votre-domaine` avant de construire le site, et ajoutez l'origine publique du site dans `CORS_ORIGINS`.

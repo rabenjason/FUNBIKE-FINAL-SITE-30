@@ -76,6 +76,23 @@ function cleanSpecs(value, errors) {
   });
 }
 
+function cleanMetadata(value, errors) {
+  if (value === undefined || value === null) return undefined;
+  if (!isPlainObject(value)) {
+    errors.push("metadata doit etre un objet JSON ou null.");
+    return undefined;
+  }
+
+  try {
+    const serialized = JSON.stringify(value);
+    if (serialized.length > 10000) errors.push("metadata depasse 10000 caracteres.");
+    return JSON.parse(serialized);
+  } catch {
+    errors.push("metadata doit etre serialisable en JSON.");
+    return undefined;
+  }
+}
+
 function cleanHomeCard(value, errors) {
   if (value === undefined || value === null) return undefined;
   if (!isPlainObject(value)) {
@@ -149,6 +166,9 @@ export function validateProductPayload(body, { pathId = undefined } = {}) {
 
   const homeCard = cleanHomeCard(body.homeCard, errors);
   if (homeCard) product.homeCard = homeCard;
+
+  const metadata = cleanMetadata(body.metadata, errors);
+  if (metadata && Object.keys(metadata).length > 0) product.metadata = metadata;
 
   if (errors.length > 0) throw validationError(errors);
   return product;

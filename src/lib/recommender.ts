@@ -1,4 +1,5 @@
-import { BIKES, type Bike } from "../data";
+import { type Bike } from "../data";
+import { getCatalogBikes } from "./products";
 import type { ChatAction } from "./assistant";
 
 /* ------------------------------------------------------------------ */
@@ -353,7 +354,7 @@ function scoreBike(bike: Bike, p: NeedProfile): number {
 }
 
 export function recommend(p: NeedProfile, brand?: string): Match[] {
-  let pool = BIKES.filter((b) => TAGS[b.id]);
+  let pool = getCatalogBikes().filter((b) => TAGS[b.id]);
   if (brand) pool = pool.filter((b) => b.brand === brand || b.brand === "Funbike");
 
   // Primary criterion: the usage must match (when the client told us the usage).
