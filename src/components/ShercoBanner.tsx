@@ -3,6 +3,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
 import { content } from "../constants/content";
+import { SHERCO_BANNER_IMAGE } from "../data";
 
 /** Parent: reveals its children one after the other when scrolled into view */
 const group: Variants = {
@@ -34,7 +35,7 @@ export default function ShercoBanner({ go }: { go: (page: string, id?: string) =
   return (
     <section className="relative isolate min-h-[330px] overflow-hidden bg-[#1a1b18] sm:min-h-[440px]">
       <motion.img
-        src="https://www.sherco.com/wp-content/uploads/SHERCO50ccV2-32.jpg"
+        src={SHERCO_BANNER_IMAGE}
         alt={content.accueil.sherco.imageAlt}
         loading="lazy"
         initial={{ scale: 1.035 }}

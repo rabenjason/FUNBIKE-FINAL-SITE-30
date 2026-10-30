@@ -5,6 +5,7 @@
  * d'évoluer (catalogue, marques, catégories, revendeurs, bannières, blog).
  * Elles ne créent ni API, ni backend, ni base de données.
  */
+import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 
 export interface Brand {
   name: string;
@@ -69,6 +70,32 @@ export interface Part {
 /** Alias explicite pour les équipements et pièces. */
 export type AccessoryProduct = Part;
 
+export interface ExclusiveBrand {
+  key: string;
+  name: string;
+  tagline: string;
+  image: string;
+}
+
+export type AccessoryBrandKey = "tld" | "gaerne" | "mt" | "tvs" | "bihr";
+
+export interface AccessoryBrand {
+  key: AccessoryBrandKey;
+  name: string;
+  logo?: string;
+  icon?: IconDefinition;
+  alt: string;
+}
+
+export interface FeaturedBike {
+  id: string;
+  short: string;
+  brand: string;
+  tag: string;
+  image: string;
+  alt: string;
+}
+
 export interface Dealer {
   key: string;
   city: string;
@@ -81,16 +108,10 @@ export interface Dealer {
   desc: string;
   lat: number;
   lon: number;
-  /**
-   * Lien Google Maps de l'itinéraire exact vers ce revendeur.
-   * Valeur gérée uniquement dans le tableau `REVENDEURS` de
-   * src/constants/content.ts — ne pas la dupliquer ailleurs.
-   */
-  googleMapsItineraire: string;
   services: string[];
-  /** Image du point de vente (URL) — laisser vide si aucun visuel. Gérée dans `REVENDEURS` (content.ts). */
+  /** Image du point de vente (URL) — laisser vide si aucun visuel. Gérée dans `REVENDEURS` (src/data.ts). */
   image?: string;
-  /** Logo du revendeur (URL) — laisser vide si aucun logo. Géré dans `REVENDEURS` (content.ts). */
+  /** Logo du revendeur (URL) — laisser vide si aucun logo. Géré dans `REVENDEURS` (src/data.ts). */
   logo?: string;
 }
 
