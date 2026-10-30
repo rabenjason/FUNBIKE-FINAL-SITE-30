@@ -187,13 +187,14 @@ export const REVENDEURS: Dealer[] = [
 
 /**
  * Motos du catalogue.
- * Accueil — section « Nouveautés / Arrivages » : ajoutez `homeFavorite: true`
- * sur une moto pour l'y afficher (et retirez-le pour l'en enlever).
- * La carte reprend l'image et le prix de la fiche ci-dessous, ainsi que ses
- * textes d'accueil `homeCard` (rendu court de la carte) : tout est rangé
- * dans la fiche de la moto, ne recopiez jamais ces informations ailleurs
- * (ni dans content.ts, ni dans un composant). Sans `homeCard`, la carte est
- * générée automatiquement depuis brand, family, name, desc et specs.
+ * Accueil : chaque fiche porte sa sélection via `homeNew` (Nouveautés /
+ * Arrivages), `motosHome` (section Motos) et `essentialsHome` (Atelier /
+ * Essentiels), avec un ordre par section (`homeNewOrder`, …) et un statut
+ * (`status`, PUBLISHED par défaut). Les sections de l'accueil n'affichent
+ * que les produits PUBLISHED dont le booléen est `true`, triés par leur
+ * ordre — voir la couche d'accès src/lib/products.ts. La carte Nouveautés
+ * reprend image, prix et textes `homeCard` de la fiche : ne recopiez jamais
+ * ces informations ailleurs (ni dans content.ts, ni dans un composant).
  */
 export const BIKES: Bike[] = [
   {
@@ -203,7 +204,10 @@ export const BIKES: Bike[] = [
     family: "Off-road",
     price: "Sur devis",
     tag: "Nouveauté 2026",
-    homeFavorite: true,
+    homeNew: true,
+    homeNewOrder: 1,
+    motosHome: true,
+    motosHomeOrder: 1,
     homeCard: {
       surTitre: "Sherco / Enduro",
       titre: "SEF 250 Factory",
@@ -239,6 +243,8 @@ export const BIKES: Bike[] = [
     family: "Off-road",
     price: "Sur devis",
     tag: "Nouveauté 2026",
+    motosHome: true,
+    motosHomeOrder: 2,
     alt: "Sherco 300 SEF Factory 2026 – vue latérale",
     image:
       "https://funbike.mg/wp-content/uploads/2026/02/01-300-SEF-FACTORY-2026-3679x2456-1-1920x1080-1.jpg",
@@ -259,6 +265,8 @@ export const BIKES: Bike[] = [
     family: "Off-road",
     price: "Sur devis",
     tag: "Best-seller",
+    motosHome: true,
+    motosHomeOrder: 3,
     alt: "XX 125 2026 – moto off-road",
     image: "https://funbike.mg/wp-content/uploads/2026/02/7b566adac57a4b5dbfd74d4f768e6fdb.jpg",
     specs: [
@@ -342,7 +350,8 @@ export const BIKES: Bike[] = [
     brand: "TVS",
     family: "Urbain",
     price: "Sur devis",
-    homeFavorite: true,
+    homeNew: true,
+    homeNewOrder: 2,
     homeCard: {
       surTitre: "TVS / Urbain sportif",
       titre: "Apache 200 4V",
@@ -419,6 +428,9 @@ export const BIKES: Bike[] = [
 ];
 
 /** Motos à la une du hero de l'accueil (images : voir BIKES). */
+/** Sélection « À la une » du hero uniquement (carrousel d'en-tête).
+ *  Les sections de l'accueil, elles, sont alimentées par les booléens
+ *  produits (`homeNew`, `motosHome`, `essentialsHome`) via src/lib/products.ts. */
 export const FEATURED: FeaturedBike[] = [
   {
     id: "sherco-sef-250-factory-2026",
@@ -519,6 +531,8 @@ export const PARTS: Part[] = [
 export const TVS_PARTS: Part[] = [
   {
     id: "tvs-part-tyre-front",
+    essentialsHome: true,
+    essentialsHomeOrder: 1,
     name: "Pneu avant route TVS 90/90-17",
     price: "Sur demande",
     kind: "piece",
@@ -537,6 +551,8 @@ export const TVS_PARTS: Part[] = [
   },
   {
     id: "tvs-part-chain-kit",
+    essentialsHome: true,
+    essentialsHomeOrder: 2,
     name: "Kit chaîne renforcé TVS 428",
     price: "Sur demande",
     kind: "piece",
@@ -785,6 +801,8 @@ export const TLD: Part[] = [
 export const TVS_ACCESSORIES: Part[] = [
   {
     id: "tvs-helmet-raider",
+    essentialsHome: true,
+    essentialsHomeOrder: 3,
     kind: "tvs",
     category: "Casques",
     name: "Casque intégral TVS Raider",
@@ -803,6 +821,8 @@ export const TVS_ACCESSORIES: Part[] = [
   },
   {
     id: "tvs-jacket-tech-core",
+    essentialsHome: true,
+    essentialsHomeOrder: 4,
     kind: "tvs",
     category: "Blousons",
     name: "Blouson TVS Racing Tech-Core",

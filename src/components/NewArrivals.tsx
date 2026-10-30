@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { motion, type Variants } from "framer-motion";
 import { BIKES, TLD } from "../data";
+import { getHomeBikes } from "../lib/products";
 import SmartImage from "./SmartImage";
 import { content } from "../constants/content";
 
@@ -17,8 +18,9 @@ type NewItem = {
   price: string;
 };
 
-// Motos favorites de l'accueil : sélectionnées par `homeFavorite: true`
-// dans BIKES (src/data.ts). La carte garde le rendu court d'origine
+// Motos de la section : produits PUBLISHED avec `homeNew: true` dans leur
+// fiche (src/data.ts), triés par `homeNewOrder`, via la couche produits
+// (src/lib/products.ts). La carte garde le rendu court d'origine
 // (sur-titre, titre court, description courte, 3 points) : elle lit les
 // textes `homeCard` rangés dans la fiche de la moto — aucune copie de
 // moto n'existe ni ici, ni dans content.ts. Sans `homeCard`, la carte est
@@ -29,7 +31,7 @@ const shortName = (bike: BikeItem) =>
   bike.name.replace(bike.brand, "").replace(/\s*\d{4}\s*$/, "").trim();
 const firstSentence = (text: string) => text.match(/^[^.]+\./)?.[0] ?? text;
 
-const favoriteItems: NewItem[] = BIKES.filter((bike) => bike.homeFavorite).map((bike) => ({
+const favoriteItems: NewItem[] = getHomeBikes("homeNew").map((bike) => ({
   id: bike.id,
   badge: bike.tag ?? "",
   eyebrow: bike.homeCard?.surTitre ?? `${bike.brand} / ${bike.family}`,
