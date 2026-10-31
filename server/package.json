@@ -13,7 +13,8 @@
     "db:migrate": "node src/scripts/migrate.js",
     "db:import": "node src/scripts/import-products.js",
     "admin:create": "node src/scripts/create-admin.js",
-    "db:seed": "node src/scripts/import-products.js database/seed-products.json"
+    "db:seed": "node src/scripts/import-products.js database/seed-products.json",
+    "test:mysql-e2e": "node tests/mysql-e2e.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -204,6 +204,19 @@ curl -X POST http://localhost:3001/api/products \
 
 Le Dashboard vit dans `dashboard/` et appelle cette API avec le jeton d'acces de l'utilisateur connecte. En developpement, ajoutez son origine a `CORS_ORIGINS` si vous changez de port ; par defaut, `http://localhost:5174` est deja autorise. Les controles de role et de permission ci-dessus restent appliques cote serveur, meme si une page est masquee dans l'interface.
 
+## Test d'intégration MySQL
+
+Le parcours complet peut être vérifié contre une vraie base MySQL de test :
+
+```bash
+cd server
+npm run db:migrate
+npm run db:seed
+npm run test:mysql-e2e
+```
+
+Le script `tests/mysql-e2e.mjs` génère ses mots de passe de test à l'exécution, crée un ADMIN et un MARKETING temporaires, téléverse une image, crée puis modifie un produit, contrôle sa présence publique, son archivage, sa republication et les permissions de suppression. Le workflow GitHub **FunBike MySQL E2E** exécute automatiquement ce parcours avec MySQL 8.4 sur les Pull Requests concernées.
+
 ## Ancienne clé `ADMIN_API_KEY`
 
 Les comptes utilisateurs sont désormais la règle pour modifier les produits. L'ancienne `ADMIN_API_KEY` est conservée uniquement comme secours **machine à machine** pour les routes produits, et seulement si `ALLOW_API_KEY_WRITES=true` est explicitement activé dans `server/.env` (désactivé par défaut). Elle ne donne jamais accès aux routes `/api/auth` ou `/api/users` et ne remplace pas l'authentification des utilisateurs.
