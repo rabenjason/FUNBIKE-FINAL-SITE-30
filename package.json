@@ -6,7 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server:dev": "npm --prefix server run dev",
+    "server:start": "npm --prefix server start",
+    "server:migrate": "npm --prefix server run db:migrate",
+    "server:seed": "npm --prefix server run db:seed",
+    "dashboard:dev": "npm --prefix dashboard run dev",
+    "dashboard:build": "npm --prefix dashboard run build",
+    "dashboard:preview": "npm --prefix dashboard run preview"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",

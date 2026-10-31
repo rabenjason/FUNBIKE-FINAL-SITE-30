@@ -44,6 +44,11 @@ function apiUrl(path: string): string {
   return `${API_BASE_URL}${path}`;
 }
 
+/** Les images televersees sont stockees sous /uploads sur l'API. */
+function resolveProductImage(url: string): string {
+  return url.startsWith("/uploads/") && API_BASE_URL ? `${API_BASE_URL}${url}` : url;
+}
+
 /* ------------------------------------------------------------------ */
 /* Normalisation des collections locales vers le modèle Product        */
 /* Ces objets servent d'affichage initial, de secours et de seed MySQL. */
@@ -161,8 +166,8 @@ export function productToBike(product: Product): Bike | undefined {
     price: product.price,
     tag: metadataString(product, "tag"),
     alt: product.alt,
-    image: product.image,
-    gallery: product.images.length > 0 ? product.images : [product.image],
+    image: resolveProductImage(product.image),
+    gallery: (product.images.length > 0 ? product.images : [product.image]).map(resolveProductImage),
     specs: product.specs,
     desc: product.description,
     homeCard: product.homeCard,
@@ -192,7 +197,7 @@ export function productToPart(product: Product): Part | undefined {
     id: product.id,
     name: product.name,
     price: product.price,
-    image: product.image,
+    image: resolveProductImage(product.image),
     kind: ACCESSORY_KINDS.includes(kindValue as AccessoryKind)
       ? (kindValue as AccessoryKind)
       : inferPartKind(product),
@@ -204,7 +209,7 @@ export function productToPart(product: Product): Part | undefined {
       : undefined,
     partType: PART_TYPES.includes(partTypeValue as PartType) ? (partTypeValue as PartType) : undefined,
     sourceUrl: metadataString(product, "sourceUrl"),
-    gallery: product.images.length > 0 ? product.images : [product.image],
+    gallery: (product.images.length > 0 ? product.images : [product.image]).map(resolveProductImage),
     desc: product.description || undefined,
     specs: product.specs,
     ...productManagement(product),

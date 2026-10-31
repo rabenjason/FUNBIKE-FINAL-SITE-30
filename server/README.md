@@ -2,7 +2,7 @@
 
 Partie serveur du site FunBike : **Node.js + Express + MySQL**.
 
-Ce dossier contient uniquement l'API serveur. Il n'y a **ni dashboard, ni interface d'administration, ni page HTML** : la gestion des produits et des utilisateurs se fait par appels API authentifiés, en attendant le futur écran d'administration.
+Ce dossier contient uniquement l'API serveur : produits, authentification, rôles et permissions. Les interfaces sont le site public à la racine du projet et le Dashboard dans `dashboard/`, tous deux reliés à cette API.
 
 ## Rôle
 
@@ -20,7 +20,7 @@ Le serveur gère le catalogue unique du site dans une seule table MySQL `product
 
 Le format JSON des produits est exactement celui du type `Product` déjà utilisé par le frontend dans `src/types/index.ts`.
 
-Le serveur gere aussi les comptes du futur dashboard dans les tables `users` et `user_sessions` : connexion, deconnexion, verification d'identite, roles ADMIN / MARKETING et permissions verifiees cote serveur.
+Le serveur gere aussi les comptes du Dashboard dans les tables `users` et `user_sessions` : connexion, deconnexion, verification d'identite, roles ADMIN / MARKETING et permissions verifiees cote serveur.
 
 ## Installation
 
@@ -156,6 +156,10 @@ Permissions appliquées côté serveur :
 
 Un ADMIN ne peut ni supprimer son propre compte, ni retirer le dernier compte ADMIN.
 
+### Images produits
+
+`POST /api/products/images` permet au Dashboard d'envoyer une image depuis l'appareil de l'utilisateur. La route exige une session valide et la permission d'ajouter ou modifier un produit. Formats JPG, PNG, WebP, GIF ou AVIF, 5 Mo maximum. Le fichier est stocke dans `server/uploads/products/` et la reponse renvoie son adresse `/uploads/products/...`, a enregistrer dans `image` / `images` du produit. Les fichiers de ce dossier ne doivent pas etre versionnes.
+
 ### Écriture des produits (utilisateur connecté)
 
 | Méthode | Route | Rôle |
@@ -195,6 +199,23 @@ curl -X POST http://localhost:3001/api/products \
     "essentialsHomeOrder": null
   }'
 ```
+
+## Dashboard relie
+
+Le Dashboard vit dans `dashboard/` et appelle cette API avec le jeton d'acces de l'utilisateur connecte. En developpement, ajoutez son origine a `CORS_ORIGINS` si vous changez de port ; par defaut, `http://localhost:5174` est deja autorise. Les controles de role et de permission ci-dessus restent appliques cote serveur, meme si une page est masquee dans l'interface.
+
+## Test d'intégration MySQL
+
+Le parcours complet peut être vérifié contre une vraie base MySQL de test :
+
+```bash
+cd server
+npm run db:migrate
+npm run db:seed
+npm run test:mysql-e2e
+```
+
+Le script `tests/mysql-e2e.mjs` génère ses mots de passe de test à l'exécution, crée un ADMIN et un MARKETING temporaires, téléverse une image, crée puis modifie un produit, contrôle sa présence publique, son archivage, sa republication et les permissions de suppression. Il refuse de s'exécuter avec `NODE_ENV=production` et doit rester réservé à une base de test. Le workflow GitHub **FunBike MySQL E2E** exécute automatiquement ce parcours avec MySQL 8.4 sur les Pull Requests concernées.
 
 ## Ancienne clé `ADMIN_API_KEY`
 
