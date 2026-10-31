@@ -76,38 +76,36 @@ export default function Settings() {
 
   return (
     <div className="grid items-start gap-5 xl:grid-cols-[0.85fr_1.15fr]">
-      <section className="overflow-hidden rounded-[1.25rem] bg-fb-ink text-white shadow-[0_18px_42px_rgb(23_24_22/0.16)]">
-        <div className="p-6">
-          <div className="flex items-center gap-4">
-            <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-fb-yellow font-display text-lg font-bold text-fb-ink">{initials(user.name)}</span>
-            <div className="min-w-0">
-              <h2 className="font-display truncate text-2xl font-bold">{user.name}</h2>
-              <p className="truncate text-sm text-white/50">{user.email}</p>
-              <div className="mt-2"><RoleBadge role={user.role} /></div>
-            </div>
+      <section className="card p-6">
+        <div className="flex items-center gap-4">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-fb-yellow font-display text-lg font-bold text-fb-ink">{initials(user.name)}</span>
+          <div className="min-w-0">
+            <h2 className="font-display truncate text-2xl font-bold">{user.name}</h2>
+            <p className="truncate text-sm text-fb-ink/50">{user.email}</p>
+            <div className="mt-2"><RoleBadge role={user.role} /></div>
           </div>
+        </div>
 
-          <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.05] p-4">
-            <p className="flex items-center gap-2 text-sm font-extrabold"><FontAwesomeIcon icon={faShieldHalved} className="text-fb-yellow" /> Permissions vérifiées par le serveur</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {user.permissions.map((permission) => (
-                <span key={permission} className="badge bg-white/[0.08] text-white/72 normal-case tracking-normal">
-                  <FontAwesomeIcon icon={faCheckCircle} className="text-fb-yellow" />
-                  {PERMISSION_LABELS[permission] ?? permission}
-                </span>
-              ))}
-            </div>
+        <div className="mt-6 rounded-2xl border border-fb-ink/[0.07] bg-[#f7f7f5] p-4">
+          <p className="flex items-center gap-2 text-sm font-bold"><FontAwesomeIcon icon={faShieldHalved} className="text-fb-yellow-dark" /> Permissions vérifiées par le serveur</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {user.permissions.map((permission) => (
+              <span key={permission} className="badge bg-white text-fb-ink/65 normal-case tracking-normal">
+                <FontAwesomeIcon icon={faCheckCircle} className="text-fb-yellow-dark" />
+                {PERMISSION_LABELS[permission] ?? permission}
+              </span>
+            ))}
           </div>
+        </div>
 
-          <div className="mt-5 grid gap-2.5">
-            <a href={publicSiteUrl()} target="_blank" rel="noreferrer" className="btn border-white/12 bg-white/[0.06] text-white hover:bg-white/[0.1]">
-              Ouvrir le site public
-            </a>
-            <button type="button" className="btn bg-red-500/12 text-red-200 hover:bg-red-500/20" onClick={() => void logout()}>
-              <FontAwesomeIcon icon={faArrowRightFromBracket} />
-              Déconnexion
-            </button>
-          </div>
+        <div className="mt-5 grid gap-2.5">
+          <a href={publicSiteUrl()} target="_blank" rel="noreferrer" className="btn btn-ghost">
+            Ouvrir le site public
+          </a>
+          <button type="button" className="btn btn-danger" onClick={() => void logout()}>
+            <FontAwesomeIcon icon={faArrowRightFromBracket} />
+            Déconnexion
+          </button>
         </div>
       </section>
 
