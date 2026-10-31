@@ -92,6 +92,10 @@ async function login(email, password) {
 }
 
 try {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Refus de lancer le test E2E avec NODE_ENV=production : utilisez uniquement une base de test.");
+  }
+
   await checkDatabaseConnection();
   console.log("OK Connexion MySQL");
 

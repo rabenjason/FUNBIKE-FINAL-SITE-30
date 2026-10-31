@@ -215,7 +215,7 @@ npm run db:seed
 npm run test:mysql-e2e
 ```
 
-Le script `tests/mysql-e2e.mjs` génère ses mots de passe de test à l'exécution, crée un ADMIN et un MARKETING temporaires, téléverse une image, crée puis modifie un produit, contrôle sa présence publique, son archivage, sa republication et les permissions de suppression. Le workflow GitHub **FunBike MySQL E2E** exécute automatiquement ce parcours avec MySQL 8.4 sur les Pull Requests concernées.
+Le script `tests/mysql-e2e.mjs` génère ses mots de passe de test à l'exécution, crée un ADMIN et un MARKETING temporaires, téléverse une image, crée puis modifie un produit, contrôle sa présence publique, son archivage, sa republication et les permissions de suppression. Il refuse de s'exécuter avec `NODE_ENV=production` et doit rester réservé à une base de test. Le workflow GitHub **FunBike MySQL E2E** exécute automatiquement ce parcours avec MySQL 8.4 sur les Pull Requests concernées.
 
 ## Ancienne clé `ADMIN_API_KEY`
 
