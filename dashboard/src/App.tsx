@@ -51,15 +51,13 @@ export default function App() {
 
   if (status === "loading") {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-fb-ink px-6 text-center text-white">
-        <span className="flex h-20 w-20 items-center justify-center rounded-[1.7rem] bg-fb-yellow shadow-[0_24px_50px_rgb(255_209_0/0.25)]">
-          <img src={LOGO_URL} alt="FunBike" className="max-h-14 max-w-14 object-contain" />
+      <main className="flex min-h-screen flex-col items-center justify-center bg-[#f6f6f4] px-6 text-center text-fb-ink">
+        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-fb-yellow">
+          <img src={LOGO_URL} alt="FunBike" className="max-h-10 max-w-10 object-contain" />
         </span>
-        <p className="font-display mt-5 text-2xl font-bold">FunBike Dashboard</p>
-        <p className="mt-2 text-sm text-white/50">Vérification de votre session sécurisée…</p>
-        <span className="mt-6 h-1.5 w-44 overflow-hidden rounded-full bg-white/10">
-          <span className="block h-full w-1/2 animate-pulse rounded-full bg-fb-yellow" />
-        </span>
+        <p className="font-display mt-4 text-xl font-bold">FunBike Dashboard</p>
+        <p className="mt-1 text-sm text-fb-ink/50">Chargement…</p>
+        <span className="mt-5 h-5 w-5 animate-spin rounded-full border-2 border-fb-ink/15 border-t-fb-ink" aria-hidden="true" />
       </main>
     );
   }
