@@ -8,6 +8,7 @@ import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 import authRoutes from "./auth/auth.routes.js";
 import productRoutes from "./products/product.routes.js";
 import userRoutes from "./users/user.routes.js";
+import uploadRoutes, { uploadErrorHandler, uploadsRoot } from "./uploads/upload.routes.js";
 import { asyncHandler } from "./utils/http-error.js";
 
 export function createApp() {
@@ -48,9 +49,24 @@ export function createApp() {
     }),
   );
 
+  // Images televersees depuis le Dashboard. Les fichiers sont servis en
+  // lecture publique ; l'envoi reste protege par authentification.
+  app.use(
+    "/uploads",
+    express.static(uploadsRoot, {
+      fallthrough: true,
+      setHeaders(response) {
+        response.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        response.setHeader("Cache-Control", "public, max-age=86400");
+      },
+    }),
+  );
+
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
+  app.use("/api", uploadRoutes);
   app.use("/api", productRoutes);
+  app.use(uploadErrorHandler);
   app.use(notFoundHandler);
   app.use(errorHandler);
 

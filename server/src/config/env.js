@@ -12,7 +12,14 @@ function toPositiveInteger(value, fallback) {
 }
 
 function toOrigins(value) {
-  if (!value) return ["http://localhost:5173", "http://127.0.0.1:5173"];
+  if (!value) {
+    return [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "http://localhost:5174",
+      "http://127.0.0.1:5174",
+    ];
+  }
   return value
     .split(",")
     .map((origin) => origin.trim())
