@@ -79,7 +79,7 @@ export default function BrandExclusif({ go }: { go: (p: string, id?: string) => 
               onClick={() => go("motos")}
               className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-black/55 transition hover:text-[#98741b] dark:text-white/55 dark:hover:text-[#ffd100]"
             >
-              {content.accueil.distributeur.boutonToutesMotos} <span aria-hidden="true">→</span>
+              {content.accueil.distributeur.boutonToutesMotos}
             </button>
           </div>
         </div>
