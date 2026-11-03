@@ -23,6 +23,9 @@ export default function TypedText({ strings, className = "" }: Props) {
       backDelay: 1400,
       loop: true,
       smartBackspace: true,
+      // Le curseur jaune personnalisé ci-dessous suffit : sans cette option,
+      // Typed.js ajoute aussi son propre « | », ce qui doublait le curseur.
+      showCursor: false,
     });
     return () => {
       typed.current?.destroy();
