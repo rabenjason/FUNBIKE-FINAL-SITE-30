@@ -29,9 +29,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(circle at top left, rgb(255 209 0 / 0.13), transparent 32rem),
-    #f6f4ef;
+  background: #f6f6f4;
 }
 
 button,
@@ -67,9 +65,9 @@ button:disabled {
 @layer components {
 .card {
   border: 1px solid rgb(23 24 22 / 0.09);
-  border-radius: 1.25rem;
-  background: rgb(255 255 255 / 0.92);
-  box-shadow: 0 16px 40px rgb(23 24 22 / 0.06);
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 4px 18px rgb(23 24 22 / 0.04);
 }
 
 .input,
@@ -77,10 +75,10 @@ button:disabled {
 .textarea {
   width: 100%;
   border: 1px solid rgb(23 24 22 / 0.14);
-  border-radius: 0.85rem;
+  border-radius: 0.7rem;
   background: #fff;
   color: #171816;
-  padding: 0.72rem 0.9rem;
+  padding: 0.68rem 0.85rem;
   font-size: 0.92rem;
   line-height: 1.35;
   transition:
@@ -98,7 +96,7 @@ button:disabled {
 .select:focus,
 .textarea:focus {
   border-color: #171816;
-  box-shadow: 0 0 0 4px rgb(255 209 0 / 0.28);
+  box-shadow: 0 0 0 3px rgb(255 209 0 / 0.25);
   outline: none;
 }
 
@@ -125,38 +123,31 @@ button:disabled {
 
 .btn {
   display: inline-flex;
-  min-height: 2.65rem;
+  min-height: 2.55rem;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 0.62rem 1rem;
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.95rem;
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
   text-decoration: none;
   transition:
-    transform 0.18s ease,
     background-color 0.18s ease,
     border-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.btn:hover:not(:disabled) {
-  transform: translateY(-1px);
+    color 0.18s ease;
 }
 
 .btn-primary {
   background: #ffd100;
   color: #171816;
-  box-shadow: 0 10px 22px rgb(255 209 0 / 0.28);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #171816;
-  color: #ffd100;
+  background: #f2c600;
+  color: #171816;
 }
 
 .btn-dark {
@@ -198,20 +189,18 @@ button:disabled {
   align-items: center;
   justify-content: center;
   border: 1px solid rgb(23 24 22 / 0.1);
-  border-radius: 999px;
+  border-radius: 0.75rem;
   background: #fff;
   color: #171816;
   transition:
     background-color 0.18s ease,
     color 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.18s ease;
+    border-color 0.18s ease;
 }
 
 .icon-btn:hover:not(:disabled) {
-  border-color: #171816;
-  background: #ffd100;
-  transform: translateY(-1px);
+  border-color: rgb(23 24 22 / 0.28);
+  background: #fffaf0;
 }
 
 .badge {

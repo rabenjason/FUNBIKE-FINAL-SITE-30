@@ -72,10 +72,10 @@ export default function Layout({
   }, [route]);
 
   const sidebar = (
-    <div className="flex h-full flex-col bg-fb-ink text-white">
-      <div className="flex items-center justify-between px-5 pb-5 pt-6">
+    <div className="flex h-full flex-col border-r border-fb-ink/10 bg-white text-fb-ink">
+      <div className="flex items-center justify-between border-b border-fb-ink/[0.07] px-5 py-5">
         <Logo />
-        <button type="button" className="icon-btn border-white/10 bg-white/5 text-white lg:hidden" onClick={() => setDrawerOpen(false)} aria-label="Fermer le menu">
+        <button type="button" className="icon-btn lg:hidden" onClick={() => setDrawerOpen(false)} aria-label="Fermer le menu">
           <FontAwesomeIcon icon={faXmark} />
         </button>
       </div>
@@ -95,16 +95,16 @@ export default function Layout({
               key={item.route.name}
               type="button"
               onClick={() => navigate(item.route)}
-              className={`group flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition ${
-                active ? "bg-fb-yellow text-fb-ink shadow-[0_12px_28px_rgb(255_209_0/0.18)]" : "text-white/68 hover:bg-white/[0.07] hover:text-white"
+              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
+                active ? "bg-fb-yellow text-fb-ink" : "text-fb-ink/65 hover:bg-fb-cream hover:text-fb-ink"
               }`}
             >
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${active ? "bg-fb-ink text-fb-yellow" : "bg-white/[0.07] text-fb-yellow"}`}>
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${active ? "bg-fb-ink text-fb-yellow" : "bg-fb-ink/[0.05] text-fb-ink/60"}`}>
                 <FontAwesomeIcon icon={item.icon} />
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-[0.92rem] font-extrabold">{item.label}</span>
-                <span className={`block truncate text-[0.72rem] ${active ? "text-fb-ink/55" : "text-white/38"}`}>{item.description}</span>
+                <span className="block truncate text-[0.92rem] font-bold">{item.label}</span>
+                <span className={`block truncate text-[0.72rem] ${active ? "text-fb-ink/55" : "text-fb-ink/40"}`}>{item.description}</span>
               </span>
             </button>
           );
@@ -112,25 +112,25 @@ export default function Layout({
       </nav>
 
       <div className="space-y-3 p-4">
-        <a href={publicSiteUrl()} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-white/80 transition hover:border-fb-yellow/60 hover:text-fb-yellow">
+        <a href={publicSiteUrl()} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-xl border border-fb-ink/10 bg-white px-4 py-3 text-sm font-semibold text-fb-ink/70 transition hover:border-fb-ink/25 hover:text-fb-ink">
           Voir le site public
           <FontAwesomeIcon icon={faExternalLinkAlt} className="text-xs" />
         </a>
 
         {user && (
-          <div className="rounded-2xl bg-white/[0.06] p-3.5">
+          <div className="rounded-xl border border-fb-ink/[0.07] bg-[#f7f7f5] p-3.5">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-fb-yellow font-display text-sm font-bold text-fb-ink">
                 {initials(user.name)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-extrabold text-white">{user.name}</p>
-                <p className="truncate text-xs text-white/45">{user.email}</p>
+                <p className="truncate text-sm font-bold text-fb-ink">{user.name}</p>
+                <p className="truncate text-xs text-fb-ink/45">{user.email}</p>
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between gap-2">
               <RoleBadge role={user.role} />
-              <button type="button" onClick={() => void logout()} className="inline-flex items-center gap-2 text-xs font-extrabold text-white/60 transition hover:text-fb-yellow">
+              <button type="button" onClick={() => void logout()} className="inline-flex items-center gap-2 text-xs font-bold text-fb-ink/55 transition hover:text-fb-ink">
                 <FontAwesomeIcon icon={faArrowRightFromBracket} />
                 Déconnexion
               </button>
@@ -153,7 +153,7 @@ export default function Layout({
       )}
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-fb-ink/[0.08] bg-fb-paper/85 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-fb-ink/[0.08] bg-white/90 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1500px] items-center gap-3 px-4 py-3.5 sm:px-6 lg:px-8">
             <button type="button" className="icon-btn lg:hidden" onClick={() => setDrawerOpen(true)} aria-label="Ouvrir le menu">
               <FontAwesomeIcon icon={faBars} />
@@ -210,7 +210,7 @@ export default function Layout({
         <main className="mx-auto w-full max-w-[1500px] px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-full border border-fb-ink/10 bg-fb-ink/[0.97] p-1.5 text-white shadow-2xl backdrop-blur lg:hidden" aria-label="Navigation mobile">
+      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-fb-ink/10 bg-white/95 p-1.5 text-fb-ink shadow-lg backdrop-blur lg:hidden" aria-label="Navigation mobile">
         {[
           { route: { name: "overview" } as Route, label: "Accueil", icon: faGaugeHigh },
           { route: { name: "products" } as Route, label: "Produits", icon: faBoxOpen },
@@ -221,7 +221,7 @@ export default function Layout({
         ].map((item) => {
           const active = route.name === item.route.name || (item.route.name === "products" && (route.name === "product-new" || route.name === "product-edit"));
           return (
-            <button key={item.label} type="button" onClick={() => navigate(item.route)} className={`flex flex-col items-center gap-1 rounded-full px-2 py-2 text-[0.65rem] font-extrabold ${active ? "bg-fb-yellow text-fb-ink" : "text-white/65"}`}>
+            <button key={item.label} type="button" onClick={() => navigate(item.route)} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[0.65rem] font-bold ${active ? "bg-fb-yellow text-fb-ink" : "text-fb-ink/55"}`}>
               <FontAwesomeIcon icon={item.icon} />
               {item.label}
             </button>

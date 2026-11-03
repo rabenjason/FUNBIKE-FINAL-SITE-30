@@ -77,40 +77,39 @@ export default function Overview({
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-[1.7rem] bg-fb-ink text-white shadow-[0_24px_55px_rgb(23_24_22/0.18)]">
-        <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.35fr_0.65fr] lg:p-10">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-fb-yellow/20 blur-3xl" />
-          <div className="relative">
-            <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.22em] text-fb-yellow">FunBike Madagascar</p>
-            <h2 className="font-display mt-3 max-w-2xl text-3xl font-bold leading-[1.02] tracking-tight sm:text-5xl">
-              Bonjour {user?.name.split(" ")[0] ?? ""}, votre catalogue est entre de bonnes mains.
+      <section className="card p-5 sm:p-6">
+        <div className="grid items-start gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-fb-yellow-dark">FunBike Madagascar</p>
+            <h2 className="font-display mt-2 text-2xl font-bold tracking-tight text-fb-ink sm:text-3xl">
+              Bonjour {user?.name.split(" ")[0] ?? ""}
             </h2>
-            <p className="mt-4 max-w-xl text-[0.95rem] leading-6 text-white/58">
-              Chaque produit enregistré ici est stocké dans MySQL. Dès qu’il est publié, le site public l’affiche automatiquement dans les sections choisies.
+            <p className="mt-2 max-w-xl text-sm leading-6 text-fb-ink/55">
+              Gérez vos produits, leur publication et les sections affichées sur le site public.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2.5">
+            <div className="mt-5 flex flex-wrap gap-2.5">
               <button type="button" className="btn btn-primary" onClick={() => navigate({ name: "product-new" })}>
                 <FontAwesomeIcon icon={faPlus} />
                 Ajouter un produit
               </button>
-              <button type="button" className="btn border-white/15 bg-white/[0.07] text-white hover:bg-white/[0.12]" onClick={() => navigate({ name: "home" })}>
+              <button type="button" className="btn btn-ghost" onClick={() => navigate({ name: "home" })}>
                 <FontAwesomeIcon icon={faHouse} />
                 Organiser l’accueil
               </button>
             </div>
           </div>
 
-          <div className="relative rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
-            <p className="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-white/40">Sélections de l’accueil</p>
-            <div className="mt-4 space-y-3">
+          <div className="rounded-xl border border-fb-ink/[0.07] bg-[#f7f7f5] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-fb-ink/45">Sélections de l’accueil</p>
+            <div className="mt-3 space-y-2">
               {homeSelections.map((selection) => (
-                <div key={selection.label} className="flex items-center justify-between gap-3 rounded-2xl bg-black/20 px-4 py-3">
-                  <span className="text-sm font-bold text-white/75">{selection.label}</span>
-                  <span className="font-display text-xl font-bold text-fb-yellow">{selection.count}</span>
+                <div key={selection.label} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3.5 py-2.5">
+                  <span className="text-sm font-semibold text-fb-ink/70">{selection.label}</span>
+                  <span className="font-display text-lg font-bold text-fb-ink">{selection.count}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-xs leading-5 text-white/42">Les produits archivés restent masqués, même s’ils sont sélectionnés.</p>
+            <p className="mt-3 text-xs leading-5 text-fb-ink/45">Les produits archivés restent masqués, même s’ils sont sélectionnés.</p>
           </div>
         </div>
       </section>

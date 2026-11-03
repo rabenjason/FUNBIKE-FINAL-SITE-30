@@ -30,18 +30,20 @@ export function publicSiteUrl() {
   return "http://localhost:5173";
 }
 
-export function Logo({ compact = false }: { compact?: boolean }) {
+export function Logo({ compact = false, tone = "dark" }: { compact?: boolean; tone?: "dark" | "light" }) {
+  const isLight = tone === "light";
+
   return (
     <span className="flex min-w-0 items-center gap-3">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-fb-yellow shadow-[0_10px_24px_rgb(255_209_0/0.25)]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-fb-yellow">
         <img src={LOGO_URL} alt="FunBike" className="max-h-9 max-w-9 object-contain" />
       </span>
       {!compact && (
         <span className="min-w-0">
-          <span className="font-display block truncate text-[1.05rem] font-bold leading-none tracking-tight text-white">
+          <span className={`font-display block truncate text-[1.05rem] font-bold leading-none tracking-tight ${isLight ? "text-white" : "text-fb-ink"}`}>
             FunBike
           </span>
-          <span className="mt-1 block text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/45">
+          <span className={`mt-1 block text-[0.68rem] font-bold uppercase tracking-[0.18em] ${isLight ? "text-white/45" : "text-fb-ink/45"}`}>
             Dashboard
           </span>
         </span>
